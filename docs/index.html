@@ -1,0 +1,495 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gold Safe-Haven Meter</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="War, oil, inflation, Fed and dollar factors scored into one 0-100 gauge for gold and silver.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: instrument panel. Dial + verdict on top, the war-to-gold chain as a strip,
+   then history, factor ledger and side notes. Brass = lifts gold, indigo = weighs on it. */
+:root {
+  --bg: #EDEFEA; --surface: #FAFBF8; --fg: #161B19; --muted: #56605B; --faint: #8A928D; --line: #D5D9D2;
+  --lift: #B7791F; --weigh: #4F5BD5; --mid: #A3A9A4;
+  --warn: #9A5B00; --warn-bg: #F6E7CF; --crit: #B3352C; --crit-bg: #F7DEDB;
+  --lift-ink: #7A4F0E; --weigh-ink: #2F3A9E;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121614; --surface: #1A1F1D; --fg: #E7EAE6; --muted: #A4ACA7; --faint: #78807B; --line: #2E3532;
+  --lift: #BF8425; --weigh: #7F89E8; --mid: #5E6561;
+  --warn: #E2A54A; --warn-bg: #3A2C14; --crit: #F08A80; --crit-bg: #3C1F1C;
+  --lift-ink: #E9B865; --weigh-ink: #AEB5F4; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121614; --surface: #1A1F1D; --fg: #E7EAE6; --muted: #A4ACA7; --faint: #78807B; --line: #2E3532;
+  --lift: #BF8425; --weigh: #7F89E8; --mid: #5E6561;
+  --warn: #E2A54A; --warn-bg: #3A2C14; --crit: #F08A80; --crit-bg: #3C1F1C;
+  --lift-ink: #E9B865; --weigh-ink: #AEB5F4; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 400 15px/1.55 var(--body); margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 18px }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance }
+h2 { font-size: 13px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-stretch: 112% }
+.num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0 }
+.sub { color: var(--muted); font-size: 13px }
+.faint { color: var(--faint) }
+a { color: inherit; text-underline-offset: 2px }
+:focus-visible { outline: 2px solid var(--lift); outline-offset: 2px }
+
+/* top bar */
+.top { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; justify-content: space-between }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap }
+.brand h1 { font-size: 26px; font-weight: 780; font-stretch: 72%; letter-spacing: .01em }
+.hallmark { font: 500 11px/1 var(--mono); letter-spacing: .12em; border: 1px solid var(--lift); color: var(--lift-ink); padding: 4px 6px; border-radius: 3px }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(280px, 400px) 1fr; gap: 18px }
+.dialbox { display: grid; justify-items: center; gap: 2px }
+#dial { width: 100%; max-width: 380px; height: auto; display: block }
+.reading { display: flex; align-items: baseline; gap: 10px; margin-top: -8px }
+.reading .big { font: 800 64px/1 var(--display); font-stretch: 66%; font-variant-numeric: tabular-nums }
+.reading .of { font: 500 14px var(--mono); color: var(--faint) }
+.zone { font: 700 13px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; border: 1px solid currentColor }
+.zone.lift { color: var(--lift-ink); background: color-mix(in oklab, var(--lift) 14%, transparent) }
+.zone.weigh { color: var(--weigh-ink); background: color-mix(in oklab, var(--weigh) 14%, transparent) }
+.zone.mid { color: var(--muted) }
+.verdict { display: grid; gap: 16px; align-content: start }
+.read { display: grid; gap: 8px; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg) }
+.bias { display: inline-flex; gap: 6px; align-items: center; font: 650 12px/1 var(--body); letter-spacing: .07em; text-transform: uppercase; width: max-content; padding: 5px 9px; border-radius: 4px }
+.bias.bullish { background: color-mix(in oklab, var(--lift) 18%, transparent); color: var(--lift-ink) }
+.bias.bearish { background: color-mix(in oklab, var(--weigh) 18%, transparent); color: var(--weigh-ink) }
+.bias.caution { background: var(--warn-bg); color: var(--warn) }
+.bias.neutral { background: color-mix(in oklab, var(--mid) 25%, transparent); color: var(--muted) }
+.read p { margin: 0; font-size: 16px; max-width: 62ch }
+.flags { display: flex; gap: 6px; flex-wrap: wrap }
+.chip { font: 500 11px/1 var(--mono); padding: 5px 7px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted) }
+.chip.warn { border-color: transparent; background: var(--warn-bg); color: var(--warn) }
+.chip.crit { border-color: transparent; background: var(--crit-bg); color: var(--crit) }
+
+/* gauges */
+.gauges { display: grid; gap: 10px }
+.g { display: grid; grid-template-columns: 170px 1fr 44px; gap: 12px; align-items: center }
+.g .name { font-weight: 600; font-size: 14px; line-height: 1.25 }
+.g .name small { display: block; font-weight: 400; color: var(--faint); font-size: 12px }
+.bar { position: relative; height: 12px; background: var(--bg); border-radius: 3px; border: 1px solid var(--line) }
+.bar .fill { position: absolute; top: 1px; bottom: 1px; border-radius: 2px }
+.bar .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--faint) }
+.g .val { font: 500 15px var(--mono); text-align: right }
+
+/* chain */
+.chain { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0 }
+.link { position: relative; padding: 12px 14px 12px 12px; border-top: 3px solid var(--mid); display: grid; gap: 4px; align-content: start }
+.link.lift { border-top-color: var(--lift) } .link.weigh { border-top-color: var(--weigh) }
+.link + .link::before { content: "→"; position: absolute; left: -7px; top: -13px; font: 500 13px var(--mono); color: var(--faint); background: var(--surface); padding: 0 2px }
+.link .k { font: 650 12px/1.2 var(--body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted) }
+.link .v { font: 750 24px/1.1 var(--display); font-stretch: 78%; font-variant-numeric: tabular-nums }
+.link .d { font-size: 12.5px; color: var(--muted); line-height: 1.35 }
+.link .heat { font: 500 11px var(--mono); color: var(--faint) }
+.link .heat b { font-weight: 500; color: var(--fg) }
+
+/* market strip */
+.market { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden }
+.stat { background: var(--surface); padding: 12px 14px; display: grid; gap: 2px }
+.stat .k { font-size: 12px; color: var(--muted) }
+.stat .v { font: 500 18px var(--mono); font-variant-numeric: tabular-nums }
+.stat .t { font: 400 11px var(--mono); color: var(--faint) }
+
+/* charts */
+.charthead { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: baseline; margin-bottom: 8px }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted) }
+.legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 6px; border-radius: 1px }
+.chart { position: relative; width: 100% }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font: 400 12px/1.5 var(--mono); box-shadow: 0 4px 14px rgb(0 0 0 / .12); white-space: nowrap; z-index: 2 }
+.tip b { font-weight: 500 }
+.axis text { fill: var(--faint); font: 400 11px var(--mono) }
+.axis line, .grid line { stroke: var(--line) }
+
+/* factor ledger */
+.cols { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; align-items: start }
+.ledger { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px }
+th { text-align: left; font: 600 11px/1.2 var(--body); letter-spacing: .07em; text-transform: uppercase; color: var(--faint); padding: 0 8px 8px; border-bottom: 1px solid var(--line) }
+td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: middle }
+tr.grp td { padding-top: 16px; font: 650 12px var(--body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); border-bottom: none }
+td.n { font-family: var(--mono); text-align: right; white-space: nowrap }
+td .lab { display: block; line-height: 1.3 }
+td .lab small { color: var(--faint); font: 400 11px var(--mono) }
+.score { display: grid; grid-template-columns: 64px 30px; gap: 8px; align-items: center; justify-content: end }
+.mini { position: relative; height: 8px; background: var(--bg); border-radius: 2px; border: 1px solid var(--line) }
+.mini .fill { position: absolute; top: 0; bottom: 0; border-radius: 1px }
+.mini .mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--faint) }
+.spark { width: 110px; height: 28px; display: block }
+.side { display: grid; gap: 18px }
+.side ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 10px }
+.side li { font-size: 13.5px; line-height: 1.4 }
+.side li time { display: block; font: 400 11px var(--mono); color: var(--faint) }
+details summary { cursor: pointer; font-weight: 600 }
+details p, details li { color: var(--muted); font-size: 14px; max-width: 75ch }
+footer { color: var(--faint); font-size: 12px; line-height: 1.6 }
+footer p { margin: 4px 0; max-width: 110ch }
+.err { color: var(--crit); font-size: 14px }
+
+@media (max-width: 980px) {
+  .hero, .cols { grid-template-columns: 1fr }
+  .chain { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px }
+  .link:nth-child(4)::before { content: none }
+  .market { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+}
+@media (max-width: 720px) { .market { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
+@media (max-width: 560px) {
+  .chain { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .market { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .link:nth-child(4)::before { content: "→" }
+  .link:nth-child(odd)::before { content: none }
+  .g { grid-template-columns: 1fr 44px } .g .bar { grid-column: 1 / -1; grid-row: 2 }
+  .reading .big { font-size: 54px }
+  .spark { width: 72px }
+}
+@media (prefers-reduced-motion: no-preference) { #needle { transition: transform .8s cubic-bezier(.2,.8,.2,1) } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Gold safe-haven meter</h1>
+      <span class="hallmark">XAU · XAG · 999.9</span>
+    </div>
+    <div class="sub" id="updated">Loading latest readings…</div>
+  </header>
+
+  <section class="panel hero" aria-labelledby="h-meter">
+    <div class="dialbox">
+      <h2 id="h-meter" style="justify-self:start">Meter</h2>
+      <svg id="dial" viewBox="0 0 300 172" role="img" aria-label="Safe-haven meter dial"></svg>
+      <div class="reading"><span class="big" id="meterVal">–</span><span class="of">/ 100</span><span class="zone mid" id="zone">–</span></div>
+      <div class="sub" id="coverage"></div>
+    </div>
+    <div class="verdict">
+      <div class="read" aria-live="polite">
+        <span class="bias neutral" id="bias">–</span>
+        <p id="readText">Waiting for data.</p>
+        <div class="flags" id="flags"></div>
+      </div>
+      <div>
+        <h2 style="margin-bottom:10px">What's pushing the needle</h2>
+        <div class="gauges" id="gauges"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-chain">
+    <div class="charthead">
+      <h2 id="h-chain">War-to-gold transmission</h2>
+      <div class="legend"><span><i style="background:var(--lift)"></i>Lifts gold</span><span><i style="background:var(--weigh)"></i>Weighs on gold</span></div>
+    </div>
+    <div class="chain" id="chain"></div>
+  </section>
+
+  <section class="market" id="market" aria-label="Market levels"></section>
+
+  <section class="panel" aria-labelledby="h-hist">
+    <div class="charthead">
+      <h2 id="h-hist">Meter history, fear vs headwind</h2>
+      <div class="legend" id="histLegend">
+        <span><i style="background:var(--fg)"></i>Meter</span>
+        <span><i style="background:var(--lift)"></i>Fear bid</span>
+        <span><i style="background:var(--weigh)"></i>Rate &amp; dollar headwind</span>
+      </div>
+    </div>
+    <div class="chart" id="histChart"></div>
+    <div class="charthead" style="margin:14px 0 4px"><h2>Gold, COMEX front-month close ($/oz)</h2></div>
+    <div class="chart" id="goldChart"></div>
+  </section>
+
+  <div class="cols">
+    <section class="panel ledger" aria-labelledby="h-factors">
+      <h2 id="h-factors" style="margin-bottom:8px">Factor ledger</h2>
+      <table>
+        <thead><tr><th>Factor</th><th style="text-align:right">Reading</th><th>Last 120 obs</th><th style="text-align:right">Score vs history</th></tr></thead>
+        <tbody id="factors"></tbody>
+      </table>
+    </section>
+    <aside class="side">
+      <section class="panel" aria-labelledby="h-silver">
+        <h2 id="h-silver">Silver tilt</h2>
+        <div id="silver" style="margin-top:8px"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-alerts">
+        <h2 id="h-alerts">Alerts</h2>
+        <ul id="alerts"></ul>
+      </section>
+      <section class="panel" aria-labelledby="h-events" id="eventsPanel" hidden>
+        <h2 id="h-events">Flagged geopolitical events</h2>
+        <ul id="events"></ul>
+      </section>
+    </aside>
+  </div>
+
+  <section class="panel">
+    <details>
+      <summary>How the meter is calculated</summary>
+      <ul>
+        <li>Each factor is ranked against its own trailing history (about two years for daily data, ten for CPI). 50 means typical; 90 means hotter than 90% of that history. Gold's own price is never an input.</li>
+        <li>Factor ranks average into four gauges. The meter blends them: fear bid 40%, rate &amp; dollar headwind 30% (inverted, because a strong headwind pushes gold down), inflation impulse 15%, flows &amp; positioning 15%.</li>
+        <li>Liquidity gate: when the junk-bond spread ranks above 90, the fear bid counts half. In a dash for cash, gold is sold with everything else (March 2020).</li>
+        <li>The trade read combines the meter with gold's trend against its 50- and 200-day averages. A high meter with a falling price is a divergence, not a buy signal.</li>
+        <li>Stale inputs count at half weight. Missing inputs drop out and the coverage figure under the dial falls.</li>
+      </ul>
+    </details>
+  </section>
+
+  <footer>
+    <p>Sources: FRED (St. Louis Fed), Caldara &amp; Iacoviello Geopolitical Risk Index (CC BY), CFTC Commitments of Traders, SPDR Gold Shares holdings, gold-api.com spot, COMEX futures closes. This product uses FRED data but is not endorsed or certified by the Federal Reserve Bank of St. Louis. Licensed inputs (ICE credit spread, GLD holdings) are shown as ranks only.</p>
+    <p>Gold in ₹ is international parity per 10 g before import duty and GST, so it reads below MCX. Educational tool, not investment advice.</p>
+  </footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const usd = (v, d = 2) => v == null ? '–' : '$' + v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const inr = v => v == null ? '–' : '₹' + Math.round(v).toLocaleString('en-IN');
+const pct = (v, d = 2) => v == null ? '–' : v.toFixed(d) + '%';
+const sgn = (v, d = 2, u = '') => v == null ? '–' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d) + u;
+const fmtDate = d => d ? new Date(d + (d.length === 10 ? 'T00:00:00Z' : '')).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '';
+const el = (tag, attrs = {}, kids = []) => {
+  const e = tag.startsWith('svg:') ? document.createElementNS(NS, tag.slice(4)) : document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) if (v != null) (k === 'text' ? (e.textContent = v) : e.setAttribute(k, v));
+  for (const c of [].concat(kids)) if (c) e.append(c);
+  return e;
+};
+const ZONES = [[0, 25, 'weigh', 1], [25, 45, 'weigh', .45], [45, 60, 'mid', 1], [60, 75, 'lift', .45], [75, 100, 'lift', 1]];
+const zoneClass = k => ({ risk_on: 'weigh', calm: 'weigh', watch: 'mid', elevated: 'lift', haven: 'lift' })[k] || 'mid';
+const tint = (v, a) => `color-mix(in oklab, var(--${v}) ${Math.round(a * 100)}%, var(--surface))`;
+
+async function load() {
+  try {
+    const [l, h] = await Promise.all(['data/latest.json', 'data/history.json'].map(u => fetch(u, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); })));
+    return { latest: l, history: h };
+  } catch (e) {
+    if (window.__SEED__) return window.__SEED__;
+    throw e;
+  }
+}
+
+function dial(m) {
+  const svg = $('dial'); svg.replaceChildren();
+  const cx = 150, cy = 150, r = 118, w = 22;
+  const pt = (v, rr) => { const a = Math.PI + v / 100 * Math.PI; return [cx + rr * Math.cos(a), cy + rr * Math.sin(a)]; };
+  for (const [a, b, c, alpha] of ZONES) {
+    const gap = .6, [x1, y1] = pt(a + gap, r), [x2, y2] = pt(b - gap, r);
+    svg.append(el('svg:path', { d: `M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}`, fill: 'none', stroke: c === 'mid' ? 'var(--mid)' : tint(c, alpha), 'stroke-width': w }));
+  }
+  for (const v of [0, 25, 45, 60, 75, 100]) {
+    const [x1, y1] = pt(v, r - w / 2 - 4), [x2, y2] = pt(v, r - w / 2 - 10);
+    svg.append(el('svg:line', { x1, y1, x2, y2, stroke: 'var(--faint)', 'stroke-width': 1 }));
+    const [tx, ty] = pt(v, r - w / 2 - 22);
+    svg.append(el('svg:text', { x: tx, y: ty + 4, 'text-anchor': 'middle', fill: 'var(--faint)', 'font-family': 'IBM Plex Mono, monospace', 'font-size': 10, text: v }));
+  }
+  const lab = [['Headwinds', 12, 'var(--weigh-ink)', 'start'], ['Safe haven', 288, 'var(--lift-ink)', 'end']];
+  for (const [t, x, f, an] of lab) svg.append(el('svg:text', { x, y: 168, fill: f, 'text-anchor': an, 'font-size': 11, 'font-weight': 600, 'letter-spacing': '.06em', text: t.toUpperCase() }));
+  const g = el('svg:g', { id: 'needle', style: `transform-origin:${cx}px ${cy}px; transform: rotate(${(m ?? 50) * 1.8 - 90}deg)` });
+  g.append(el('svg:path', { d: `M${cx - 4} ${cy} L${cx} ${cy - r + 6} L${cx + 4} ${cy} Z`, fill: 'var(--fg)' }));
+  svg.append(g, el('svg:circle', { cx, cy, r: 8, fill: 'var(--surface)', stroke: 'var(--fg)', 'stroke-width': 3 }));
+}
+
+function gaugeRows(G, gate) {
+  const box = $('gauges'); box.replaceChildren();
+  for (const k of ['fear', 'headwind', 'inflation', 'flows']) {
+    const g = G[k]; const s = g.score;
+    const color = g.effect > 0 ? 'lift' : 'weigh';
+    const lo = Math.min(50, s ?? 50), hi = Math.max(50, s ?? 50);
+    const bar = el('div', { class: 'bar', role: 'img', 'aria-label': `${g.label} ${s ?? 'no data'} of 100` }, [
+      el('div', { class: 'fill', style: `left:${lo}%;width:${hi - lo}%;background:var(--${color})` }), el('div', { class: 'mid' })]);
+    const note = k === 'fear' && g.beforeGate != null ? ` · halved by credit stress (was ${g.beforeGate})` : g.coverage < 1 ? ` · ${Math.round(g.coverage * 100)}% of inputs` : '';
+    box.append(el('div', { class: 'g' }, [
+      el('div', { class: 'name' }, [g.label, el('small', { text: (g.effect > 0 ? 'Lifts gold' : 'Weighs on gold') + ` · ${Math.round(g.weight * 100)}% of meter` + note })]),
+      bar, el('div', { class: 'val', text: s == null ? '–' : Math.round(s) })]));
+  }
+}
+
+function chain(L) {
+  const F = Object.fromEntries(L.factors.map(f => [f.id, f])), M = L.market;
+  const heat = (...ids) => { const ss = ids.map(i => F[i]?.score).filter(v => v != null); return ss.length ? Math.round(ss.reduce((a, b) => a + b) / ss.length) : null; };
+  const fp = F.fed_path?.value;
+  const fedWord = fp == null ? '' : fp > .25 ? 'Hikes priced' : fp < -.25 ? 'Cuts priced' : 'On hold';
+  const gt = M.gold?.trend;
+  const links = [
+    ['War risk', F.gpr_acts?.value?.toFixed(0) ?? '–', `Acts ${F.gpr_acts?.value?.toFixed(0) ?? '–'} · threats ${F.gpr_threat?.value?.toFixed(0) ?? '–'} (GPR, 100 = 1985–2019 avg)`, heat('gpr_threat', 'gpr_acts'), 'lift'],
+    ['Oil', usd(M.brent?.value), `Dated Brent · ${sgn(F.oil_shock?.value, 1, '%')} in 10 days · OVX ${F.ovx?.value?.toFixed(0) ?? '–'}`, heat('oil_shock', 'ovx'), 'lift'],
+    ['Inflation', pct(F.cpi?.value, 1), `CPI y/y · core ${pct(F.core_cpi?.value, 1)} · 10y breakeven ${pct(M.be10?.value)}`, heat('breakeven', 'cpi', 'core_cpi'), 'lift'],
+    ['Fed path', pct(M.fedUpper?.value), `${fedWord}: 2y at ${pct(M.y2?.value)}, ${sgn(fp, 2, ' pp')} vs ceiling`, heat('fed_path', 'y2_chg'), 'weigh'],
+    ['Real yield & USD', pct(M.real10?.value), `10y TIPS, ${sgn(F.real_yield?.value * 100, 0, ' bp')} in 20 days · dollar ${sgn(F.dollar?.value, 1, '%')}`, heat('real_yield', 'dollar'), 'weigh'],
+    ['Gold', usd(M.gold?.price, 0), gt ? `Trend ${gt.state} · ${sgn(gt.ret20, 1, '%')} in 20 days · 50-day ${usd(gt.sma50, 0)}` : 'Trend needs price history', null, 'mid'],
+  ];
+  $('chain').replaceChildren(...links.map(([k, v, d, h, c]) => el('div', { class: `link ${c}` }, [
+    el('div', { class: 'k', text: k }), el('div', { class: 'v', text: v }), el('div', { class: 'd', text: d }),
+    h == null ? null : el('div', { class: 'heat' }, ['Heat ', el('b', { text: h }), ' / 100'])])));
+}
+
+function market(L) {
+  const M = L.market;
+  const items = [
+    ['Gold spot', usd(M.gold?.price), M.gold?.at && new Date(M.gold.at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) + ' IST'],
+    ['Silver spot', usd(M.silver?.price), ''],
+    ['Gold/silver ratio', L.silver?.ratio?.toFixed(1) ?? '–', L.silver?.chg20 != null ? sgn(L.silver.chg20, 1) + ' in 20 days' : ''],
+    ['Gold ₹ / 10 g', inr(M.goldInr10g), 'parity, before duty'],
+    ['Brent (dated)', usd(M.brent?.value), fmtDate(M.brent?.asOf)],
+    ['WTI', usd(M.wti?.value), fmtDate(M.wti?.asOf)],
+    ['Fed funds ceiling', pct(M.fedUpper?.value), fmtDate(M.fedUpper?.asOf)],
+    ['2y Treasury', pct(M.y2?.value), fmtDate(M.y2?.asOf)],
+    ['10y Treasury', pct(M.y10?.value), fmtDate(M.y10?.asOf)],
+    ['10y real yield', pct(M.real10?.value), fmtDate(M.real10?.asOf)],
+    ['10y breakeven', pct(M.be10?.value), fmtDate(M.be10?.asOf)],
+    ['USD/INR', M.usdinr?.value?.toFixed(2) ?? '–', fmtDate(M.usdinr?.asOf)],
+  ];
+  $('market').replaceChildren(...items.map(([k, v, t]) => el('div', { class: 'stat' }, [el('div', { class: 'k', text: k }), el('div', { class: 'v', text: v }), el('div', { class: 't', text: t || ' ' })])));
+}
+
+function lineChart(host, rows, series, { h = 220, yMin = 0, yMax = 100, refs = [50], fmt = v => Math.round(v), tipRows }) {
+  host.replaceChildren();
+  const W = Math.max(300, host.clientWidth), H = h, m = { l: 40, r: 12, t: 8, b: 22 };
+  const pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const xs = i => m.l + (rows.length < 2 ? 0 : i / (rows.length - 1) * pw);
+  const ys = v => m.t + ph - (v - yMin) / (yMax - yMin) * ph;
+  const svg = el('svg:svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': series.map(s => s.name).join(', ') + ' over time' });
+  const grid = el('svg:g', { class: 'grid axis' });
+  const ticks = [0, 1, 2, 3, 4].map(k => yMin + k * (yMax - yMin) / 4);
+  for (const t of ticks) { grid.append(el('svg:line', { x1: m.l, x2: W - m.r, y1: ys(t), y2: ys(t), 'stroke-dasharray': refs.includes(t) ? '' : '2 4' }), el('svg:text', { x: m.l - 8, y: ys(t) + 4, 'text-anchor': 'end', text: fmt(t) })); }
+  if (yMax === 100) {
+    svg.append(el('svg:rect', { x: m.l, y: ys(100), width: pw, height: ys(75) - ys(100), fill: tint('lift', .08) }),
+      el('svg:rect', { x: m.l, y: ys(25), width: pw, height: ys(0) - ys(25), fill: tint('weigh', .08) }));
+  }
+  svg.append(grid);
+  const months = el('svg:g', { class: 'axis' }); let lastM = '';
+  rows.forEach((r, i) => { const mo = r.d.slice(0, 7); if (mo !== lastM && r.d.slice(8) <= '07') { lastM = mo; if (xs(i) > m.l + 10 && xs(i) < W - 30) months.append(el('svg:text', { x: xs(i), y: H - 4, 'text-anchor': 'middle', text: new Date(r.d + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }) + (mo.endsWith('-01') ? " '" + mo.slice(2, 4) : '') })); } });
+  svg.append(months);
+  for (const s of series) {
+    let d = '', pen = false;
+    rows.forEach((r, i) => { const v = r[s.key]; if (v == null) { pen = false; return; } d += (pen ? 'L' : 'M') + xs(i).toFixed(1) + ' ' + ys(v).toFixed(1); pen = true; });
+    svg.append(el('svg:path', { d, fill: 'none', stroke: s.color, 'stroke-width': s.w ?? 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', opacity: s.opacity ?? 1 }));
+    const lastI = rows.map(r => r[s.key]).findLastIndex(v => v != null);
+    if (lastI >= 0) svg.append(el('svg:circle', { cx: xs(lastI), cy: ys(rows[lastI][s.key]), r: 3.5, fill: s.color, stroke: 'var(--surface)', 'stroke-width': 2 }));
+  }
+  const cross = el('svg:line', { y1: m.t, y2: m.t + ph, stroke: 'var(--faint)', 'stroke-width': 1, visibility: 'hidden' });
+  const hit = el('svg:rect', { x: m.l, y: m.t, width: pw, height: ph, fill: 'transparent', style: 'cursor:crosshair' });
+  svg.append(cross, hit);
+  host.append(svg);
+  const tip = el('div', { class: 'tip', hidden: '' }); host.append(tip);
+  const move = ev => {
+    const b = svg.getBoundingClientRect(); const x = (ev.clientX - b.left) / b.width * W;
+    const i = Math.max(0, Math.min(rows.length - 1, Math.round((x - m.l) / pw * (rows.length - 1))));
+    cross.setAttribute('x1', xs(i)); cross.setAttribute('x2', xs(i)); cross.setAttribute('visibility', 'visible');
+    tip.replaceChildren(el('div', {}, [el('b', { text: new Date(rows[i].d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) })]), ...tipRows(rows[i]).map(t => el('div', { text: t })));
+    tip.hidden = false;
+    const px = xs(i) / W * b.width; tip.style.left = Math.min(b.width - tip.offsetWidth - 4, Math.max(4, px + 12)) + 'px'; tip.style.top = '6px';
+  };
+  hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move);
+  hit.addEventListener('pointerleave', () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); });
+}
+
+function history(H) {
+  const rows = H.slice(-260);
+  const r1 = v => v == null ? '–' : Math.round(v);
+  lineChart($('histChart'), rows, [
+    { key: 'fear', name: 'Fear bid', color: 'var(--lift)', w: 1.5, opacity: .9 },
+    { key: 'headwind', name: 'Headwind', color: 'var(--weigh)', w: 1.5, opacity: .9 },
+    { key: 'meter', name: 'Meter', color: 'var(--fg)', w: 2.25 }],
+    { tipRows: r => [`Meter     ${r1(r.meter)}`, `Fear      ${r1(r.fear)}`, `Headwind  ${r1(r.headwind)}`, `Inflation ${r1(r.inflation)}`, `Flows     ${r1(r.flows)}`] });
+  const g = rows.filter(r => r.gold != null);
+  if (g.length > 2) {
+    const lo = Math.min(...g.map(r => r.gold)), hi = Math.max(...g.map(r => r.gold)), pad = (hi - lo) * .08;
+    const step = Math.pow(10, Math.floor(Math.log10((hi - lo) || 1)));
+    const yMin = Math.floor((lo - pad) / step) * step, yMax = Math.ceil((hi + pad) / step) * step;
+    lineChart($('goldChart'), rows, [{ key: 'gold', name: 'Gold', color: 'var(--lift-ink)', w: 1.75 }],
+      { h: 140, yMin, yMax, refs: [], fmt: v => '$' + Math.round(v).toLocaleString('en-US'), tipRows: r => [`Gold  ${usd(r.gold, 0)}`, `Meter ${r1(r.meter)}`] });
+  } else $('goldChart').replaceChildren(el('p', { class: 'sub', text: 'Gold price history builds up after the first scheduled runs.' }));
+}
+
+function spark(vals, color) {
+  const v = (vals || []).filter(x => x != null); if (v.length < 2) return el('span', { class: 'faint', text: '–' });
+  const W = 110, H = 28, lo = Math.min(...v), hi = Math.max(...v), y = x => H - 3 - (hi === lo ? .5 : (x - lo) / (hi - lo)) * (H - 6);
+  const pts = v.map((x, i) => [i / (v.length - 1) * (W - 4) + 1, y(x)]);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+  const s = el('svg:svg', { class: 'spark', viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none', role: 'img', 'aria-label': `trend, latest ${v.at(-1)}` });
+  s.append(el('svg:path', { d: d + `L${pts.at(-1)[0]} ${H}L${pts[0][0]} ${H}Z`, fill: tint(color, .16), stroke: 'none' }),
+    el('svg:path', { d, fill: 'none', stroke: `var(--${color})`, 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke' }),
+    el('svg:circle', { cx: pts.at(-1)[0], cy: pts.at(-1)[1], r: 2.5, fill: `var(--${color})` }));
+  s.append(el('svg:title', { text: `Latest ${v.at(-1)}` }));
+  return s;
+}
+
+function ledger(L) {
+  const tb = $('factors'); tb.replaceChildren();
+  const groups = [['fear', 'Fear bid'], ['gate', 'Liquidity gate'], ['inflation', 'Inflation impulse'], ['headwind', 'Rate & dollar headwind'], ['flows', 'Flows & positioning']];
+  for (const [g, name] of groups) {
+    const fs = L.factors.filter(f => f.gauge === g); if (!fs.length) continue;
+    tb.append(el('tr', { class: 'grp' }, [el('td', { colspan: 4, text: name })]));
+    const color = g === 'headwind' ? 'weigh' : g === 'gate' ? 'mid' : 'lift';
+    for (const f of fs) {
+      const u = f.unit === '%' ? '%' : f.unit === 'pp' ? ' pp' : '';
+      const val = f.restricted ? el('span', { class: 'faint', text: 'rank only' }) : f.value == null ? '–' : (Math.abs(f.value) >= 100 ? f.value.toFixed(0) : f.value.toFixed(2)) + u;
+      const s = f.score;
+      const lo = Math.min(50, s ?? 50), hi = Math.max(50, s ?? 50);
+      const chips = [];
+      if (f.error) chips.push(el('span', { class: 'chip crit', text: 'no data' }));
+      else if (f.stale) chips.push(el('span', { class: 'chip warn', text: 'stale' }));
+      tb.append(el('tr', {}, [
+        el('td', {}, [el('span', { class: 'lab' }, [f.label, ' ', ...chips, el('br'), el('small', { text: f.asOf ? `as of ${fmtDate(f.asOf)}` + (f.z != null ? ` · z ${sgn(f.z, 1)}` : '') : (f.error || '') })])]),
+        el('td', { class: 'n' }, [val]),
+        el('td', {}, [f.restricted ? el('span', { class: 'faint', text: '–' }) : spark(f.spark, color === 'mid' ? 'lift' : color)]),
+        el('td', {}, [el('div', { class: 'score' }, [
+          el('div', { class: 'mini', role: 'img', 'aria-label': `score ${s ?? 'none'}` }, [el('div', { class: 'fill', style: `left:${lo}%;width:${hi - lo}%;background:var(--${color === 'mid' ? 'warn' : color})` }), el('div', { class: 'mid' })]),
+          el('span', { class: 'num', style: 'text-align:right', text: s == null ? '–' : Math.round(s) })])]),
+      ]));
+    }
+  }
+}
+
+function sideNotes(L) {
+  const S = L.silver, cs = L.market.cotSilver, st = L.market.silver?.trend;
+  $('silver').replaceChildren(
+    el('div', { class: 'reading', style: 'margin:0' }, [el('span', { class: 'big', style: 'font-size:40px', text: S?.ratio?.toFixed(1) ?? '–' }), el('span', { class: 'of', text: 'oz silver per oz gold' })]),
+    el('p', { style: 'margin:6px 0', text: S?.text ?? '' }),
+    el('div', { class: 'sub mono', text: [st && `Silver trend ${st.state}, ${sgn(st.ret20, 1, '%')} in 20 days`, cs && `Funds net long ${cs.value}% of open interest (${fmtDate(cs.asOf)})`].filter(Boolean).join(' · ') }));
+  const A = $('alerts'); A.replaceChildren();
+  for (const a of L.alerts || []) A.append(el('li', {}, [el('time', { text: new Date(a.at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' IST' }), el('b', { text: a.title }), el('br'), a.body]));
+  if (!(L.alerts || []).length) A.append(el('li', { class: 'sub', text: 'No alerts sent yet. Alerts go to Telegram or ntfy once the workflow has its secrets.' }));
+  if ((L.pending || []).length) A.append(el('li', {}, [el('time', { text: 'Conditions true right now' }), L.pending.join(', ')]));
+  if ((L.events || []).length) {
+    $('eventsPanel').hidden = false;
+    $('events').replaceChildren(...L.events.map(e => el('li', {}, [el('time', { text: fmtDate(e.d) }), e.event])));
+  }
+}
+
+function render({ latest: L, history: H }) {
+  const t = new Date(L.generatedAt);
+  const ageH = (Date.now() - t) / 36e5;
+  $('updated').replaceChildren('Updated ' + t.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' IST',
+    ageH > 6 ? el('span', { class: 'chip warn', style: 'margin-left:8px', text: `${Math.round(ageH)} h old` }) : '');
+  dial(L.meter);
+  $('meterVal').textContent = L.meter == null ? '–' : Math.round(L.meter);
+  const z = $('zone'); z.textContent = L.zone.label; z.className = 'zone ' + zoneClass(L.zone.key);
+  $('coverage').textContent = `${Math.round((L.coverage ?? 1) * 100)}% of inputs reporting`;
+  const b = $('bias'); b.className = 'bias ' + L.read.bias;
+  b.textContent = ({ bullish: '▲ Gold tailwind', bearish: '▼ Gold headwind', caution: '◆ Caution', neutral: '● No clear edge' })[L.read.bias];
+  $('readText').textContent = L.read.text;
+  const F = { tug_of_war: ['Tug-of-war', 'warn'], divergence: ['Divergence', 'warn'], liquidity_stress: ['Credit stress', 'crit'] };
+  $('flags').replaceChildren(...L.read.flags.map(f => el('span', { class: 'chip ' + (F[f]?.[1] || ''), text: F[f]?.[0] || f })),
+    L.gate?.score != null ? el('span', { class: 'chip', text: `Credit stress rank ${Math.round(L.gate.score)} (gate at ${L.gate.threshold})` }) : null);
+  gaugeRows(L.gauges, L.gate); chain(L); market(L); ledger(L); sideNotes(L);
+  history(H);
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => history(H), 150); });
+}
+
+load().then(render).catch(e => { $('updated').replaceChildren(el('span', { class: 'err', text: 'Could not load data/latest.json. Run the workflow once to generate it. (' + e.message + ')' })); });
+</script>
