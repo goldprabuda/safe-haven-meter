@@ -1,7 +1,7 @@
 // Alert rules + delivery (Telegram and/or ntfy.sh). State lives in data/state.json so
 // the same alert doesn't fire every run (cooldown) and zone flips need to clear a buffer.
 import { ALERTS } from '../config/factors.mjs';
-import { zoneOf } from './engine.mjs';
+import { zoneOf, REGIME_TEXT } from './engine.mjs';
 import { transform } from './lib.mjs';
 
 const last = s => (s?.length ? s[s.length - 1].v : null);
@@ -17,6 +17,12 @@ export function evaluate({ live, data, display, read, prevState }) {
     add(`zone:${zone.key}`, `Meter now ${zone.label} (${live.meter.toFixed(0)})`,
       `Safe-haven meter moved from ${prevState.zoneLabel ?? prevState.zone} to ${zone.label}. ${read.text}`,
       zone.key === 'haven' ? 'high' : 'info');
+  }
+
+  // 1b) Fed regime change (tightening / easing / on hold)
+  if (prevState.fedRegime && live.regime !== prevState.fedRegime) {
+    const R = REGIME_TEXT[live.regime];
+    add(`regime:${live.regime}`, `Fed regime now: ${R.label}`, R.text, live.regime === 'tightening' ? 'high' : 'info');
   }
 
   // 2) War escalation
@@ -82,7 +88,9 @@ const ascii = s => s.replace(/[^\x20-\x7E]/g, '').trim();
 export async function deliver(alerts, { meter, zone, dashboardUrl }) {
   const results = [];
   const footer = `\nMeter ${meter.toFixed(0)}/100 (${zone.label})${dashboardUrl ? `\n${dashboardUrl}` : ''}`;
-  const { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, NTFY_TOPIC, NTFY_SERVER = 'https://ntfy.sh' } = process.env;
+  // Same secret names as the gold-trading-intelligence pipeline (TELEGRAM_TOKEN), old name still accepted.
+  const { TELEGRAM_CHAT_ID, NTFY_TOPIC, NTFY_SERVER = 'https://ntfy.sh' } = process.env;
+  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
   for (const a of alerts) {
     if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
       const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {

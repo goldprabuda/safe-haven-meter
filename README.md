@@ -9,8 +9,12 @@ War escalates ─► fear bid (GPR, VIX, gold vol) ─────────�
       └────────► oil spikes ─► inflation rises ─► Fed turns hawkish ─► real yields & USD up ─► gold DOWN
 ```
 
-Both paths run at once. The meter nets them, so you can see when fear wins and when the rate headwind wins
-(in March 2026 the Iran strikes sent fear to ~90, but the headwind hit ~97 and gold fell 13.6% that month).
+Both paths run at once. The meter nets them, so you can see when fear wins and when the rate headwind wins.
+In March 2026 the Iran strikes sent fear to ~99 within ten days, but by month-end the headwind was at ~94 and
+gold had fallen 13.6%, its worst month since 2013.
+
+**Dashboard:** <https://goldprabuda.github.io/safe-haven-meter/> ·
+**Bot signal:** [`docs/data/signal.json`](docs/data/signal.json)
 
 Runs free: **GitHub Actions** fetches and scores every 30 minutes, **GitHub Pages** hosts the dashboard,
 **Telegram / ntfy** deliver alerts. No server, no database, no paid data.
@@ -24,6 +28,21 @@ Runs free: **GitHub Actions** fetches and scores every 30 minutes, **GitHub Page
 | **Inflation impulse** (15%) | 10y breakeven 20-day change, CPI y/y, core CPI y/y | Lifts |
 | **Flows & positioning** (15%) | CFTC managed-money net long (% of OI), GLD ETF holdings 20-day change | Lifts |
 | **Liquidity gate** | Junk-bond credit spread. Above its 90th percentile the fear bid counts half (dash-for-cash risk, as in March 2020) | Gate |
+| **Fed-cycle gate** | 2y yield vs Fed ceiling, and 2y 60-day change. See below | Gate |
+
+### Fed-cycle gate
+
+BIS research (Oct 2026) finds war risk barely moves gold while the Fed is tightening, because an oil-driven war
+then means more hikes, higher real yields and a firmer dollar. So the meter reads the Fed regime from market pricing:
+
+| Regime | Switches on when | While on |
+|---|---|---|
+| **Tightening** | 2y yield > Fed ceiling + 0.25 pp, **or** 2y up > 0.25 pp in 60 sessions (off below 0.15 on both) | Fear counts **half** (a quarter if credit is also stressed). Inflation **flips**: hot inflation means more hikes, so it weighs on gold |
+| **Easing** | 2y yield < Fed ceiling − 0.25 pp and the 2y not rising | Everything counts normally |
+| **On hold** | Otherwise | Everything counts normally |
+
+Back-filled, it switched to tightening on 19 Mar 2026 as markets repriced from cuts to hikes, eased for three
+days after the Hormuz reopening (20–22 Apr), and has been on since 23 Apr. A regime change sends an alert.
 
 Each input is ranked against its own trailing history (percentile rank: 50 = normal, 90 = hotter than 90% of
 the window). Gold's own price is never an input, so the meter can't just echo the price.
@@ -37,24 +56,30 @@ The **trade read** combines the meter with gold's trend (COMEX futures vs 50/200
 | ≤ 40 | down | Headwind aligned: avoid fresh longs |
 | ≤ 40 | up | Momentum only, tighten stops |
 | fear ≥ 65 **and** headwind ≥ 65 | any | Tug-of-war: two-way swings, size down |
+| fear ≥ 65 while the Fed is tightening | any | War vs Fed: don't buy the headline, wait for price |
+| credit spread rank ≥ 90 | any | Credit stress: dash-for-cash risk |
 
 The **silver tilt** watches the gold/silver ratio: rising with high fear = panic favours gold; falling = silver
 (industrial/reflation) is outperforming with higher beta.
 
-## Set up (about 15 minutes)
+## Set up (about 10 minutes)
 
-1. **Create a public GitHub repo** and push this folder to it. Public repos get unlimited Actions minutes;
-   a private repo on the free plan would use most of its monthly allowance at a 30-minute schedule.
-2. **Settings → Pages**: Source = *Deploy from a branch*, Branch = `main`, folder = `/docs`.
-3. **Settings → Secrets and variables → Actions → Secrets** (all optional):
+The repo is public, so Actions minutes are unlimited.
+
+1. **Settings → Pages**: Source = *Deploy from a branch*, Branch = `main`, folder = `/docs` → Save.
+2. **Settings → Secrets and variables → Actions → New repository secret.** All are optional and use the same
+   names (and values) as the `gold-trading-intelligence` pipeline:
    - `FRED_API_KEY`: free at <https://fred.stlouisfed.org/docs/api/api_key.html>. Without it the keyless CSV
      download is used, which throttles bursts; the run then falls back to the last cached copy.
-   - `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`: create a bot with @BotFather, message it once, then read
+   - `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID`: create a bot with @BotFather, message it once, then read
      your chat id from `https://api.telegram.org/bot<token>/getUpdates`.
    - `NTFY_TOPIC`: any hard-to-guess topic name, then subscribe to it in the ntfy app.
-4. **Variables** (optional): `DASHBOARD_URL` = your Pages URL, added to every alert.
-5. **Actions → Safe-haven meter → Run workflow** once. The first run records state and sends no alerts;
+3. **Variables tab** (optional): `DASHBOARD_URL` = `https://goldprabuda.github.io/safe-haven-meter/`, added to every alert.
+4. **Actions → Safe-haven meter → Run workflow** once. The first run records state and sends no alerts;
    alerts start from the second run.
+
+Outputs are committed only when a reading changes, or every 2 hours as a heartbeat (`METER_HEARTBEAT_MIN`),
+so the repo doesn't grow by a commit every 30 minutes.
 
 Run locally: `npm ci && node src/run.mjs --no-alerts`, then serve `docs/` (`npx serve docs`). Tests: `npm test`.
 
@@ -69,6 +94,7 @@ Run locally: `npm ci && node src/run.mjs --no-alerts`, then serve `docs/` (`npx 
 | Hawkish repricing | 2y yield +25 bp in 10 sessions |
 | Real yields | 10y TIPS +20 bp in 10 sessions |
 | Dollar | Broad dollar +2% in 10 sessions |
+| Fed regime change | Tightening ↔ on hold ↔ easing |
 | Tug-of-war / Divergence / Credit stress | From the trade read |
 
 Each alert repeats at most once every 72 hours. Thresholds and weights live in `config/factors.mjs`.
@@ -88,14 +114,34 @@ Each alert repeats at most once every 72 hours. Thresholds and weights live in `
 Every source falls back to the last good copy in `data/cache/` if it fails, and stale inputs count at half
 weight. The dashboard shows coverage under the dial.
 
+## Use it from your bots
+
+`docs/data/signal.json` is a small, flat file made for trading bots. It is also served at
+`https://raw.githubusercontent.com/goldprabuda/safe-haven-meter/main/docs/data/signal.json`, which works
+even before Pages is switched on:
+
+```json
+{ "meter": 49.9, "zone": "watch", "bias": "neutral", "regime": "tightening", "flags": "fed_tightening",
+  "allowLong": 1, "allowShort": 1, "lotFactor": 1, "pyramid": 1, "generatedUnix": 1793335985, ... }
+```
+
+| Integration | File | What it does |
+|---|---|---|
+| **DollarDesk EA (MT5)** | [`integrations/mt5/`](integrations/mt5/) | Drop-in `SafeHavenFilter.mqh`: blocks longs/shorts/pyramid adds and scales lots per the meter |
+| **gold-trading-intelligence** | [`integrations/pipeline/`](integrations/pipeline/) | Patch that gives Claude the regime and adds a meter line to alerts |
+| **Any Python bot** (e.g. gold-scalp-bot) | [`integrations/python/safe_haven.py`](integrations/python/safe_haven.py) | `get_meter()` + `meter_context()` for LLM prompts |
+
+What each trade read allows is set in `config/factors.mjs → EA_POLICY` (caution = half size, no pyramiding).
+
 ## Layout
 
 ```
-config/factors.mjs   weights, windows, thresholds, alert rules (edit here)
+config/factors.mjs   weights, windows, gates, bot policy, alert rules (edit here)
 src/sources.mjs      free data fetchers (FRED queue + circuit breaker, GPR, COT, GLD, spot, futures)
-src/engine.mjs       ranking, gauges, liquidity gate, trend, trade read, silver tilt, history back-fill
+src/engine.mjs       ranking, gauges, liquidity + Fed-cycle gates, trend, trade read, silver tilt, back-fill
 src/alerts.mjs       alert rules, cooldowns, Telegram + ntfy delivery
-src/run.mjs          entry point; writes docs/data/latest.json and history.json
+src/run.mjs          entry point; writes docs/data/latest.json, history.json and signal.json
+integrations/        MT5 include, pipeline patch, Python helper
 docs/index.html      the dashboard (static, no build step)
 .github/workflows/   the 30-minute schedule
 ```

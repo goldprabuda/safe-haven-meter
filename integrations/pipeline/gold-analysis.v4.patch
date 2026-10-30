@@ -1,0 +1,131 @@
+diff --git a/gold-analysis.v4.js b/gold-analysis.v4.js
+index fc1f72d..a9cf8aa 100644
+--- a/gold-analysis.v4.js
++++ b/gold-analysis.v4.js
+@@ -19,6 +19,9 @@ const NTFY_TOPIC      = process.env.NTFY_TOPIC;           // e.g. gold-alerts-yo
+ const TELEGRAM_TOKEN  = process.env.TELEGRAM_TOKEN;       // optional
+ const TELEGRAM_CHATID = process.env.TELEGRAM_CHAT_ID;     // optional
+ const FORCE_NOTIFY    = process.env.FORCE_NOTIFY === 'true';
++// Gold safe-haven meter (github.com/goldprabuda/safe-haven-meter): public file, no key needed
++const SAFE_HAVEN_URL  = process.env.SAFE_HAVEN_URL ||
++  'https://raw.githubusercontent.com/goldprabuda/safe-haven-meter/main/docs/data/signal.json';
+ 
+ // Only send push alert when any asset's confidence reaches this level (1–10)
+ const ALERT_THRESHOLD = 6;
+@@ -301,6 +304,33 @@ async function fetchNews() {
+ }
+ 
+ // ── 8. CLAUDE AI ANALYSIS ─────────────────────────────────────────
++// ── SAFE-HAVEN METER ──────────────────────────────────────────────
++// Regime context: is war fear lifting gold, or is the Fed's rate headwind winning?
++async function fetchSafeHaven() {
++  const m = await safeFetch(SAFE_HAVEN_URL, 'Safe-haven meter');
++  if (!m?.generatedUnix) return null;
++  m.ageHours = (Date.now() / 1000 - m.generatedUnix) / 3600;
++  if (m.ageHours > 8) { warn(`Safe-haven meter is ${m.ageHours.toFixed(1)}h old — ignoring`); return null; }
++  return m;
++}
++
++function buildMeterSection(m) {
++  if (!m) return 'Unavailable — judge regime from the data above.';
++  return [
++    `Meter: ${m.meter}/100 (${m.zone})  |  Trade read: ${String(m.bias).toUpperCase()}  |  Fed regime: ${m.regime}`,
++    `Gauges: fear ${m.fear}, rate & dollar headwind ${m.headwind}, inflation ${m.inflation}, flows ${m.flows}  (50 = normal)`,
++    `Gold trend: ${m.goldTrend}  |  Flags: ${m.flags || 'none'}`,
++    `Note: ${m.note}`,
++  ].join('\n');
++}
++
++// One plain line for alerts (no underscores or asterisks: Telegram Markdown would break)
++function meterLine(m) {
++  if (!m) return null;
++  const clean = v => String(v ?? '').replace(/[_*`\[\]]/g, ' ');
++  return `Safe-haven meter ${Math.round(m.meter)}/100 ${clean(m.zone)} | Fed ${clean(m.regime)} | bias ${clean(m.bias)}`;
++}
++
+ function buildTechSection(t, label) {
+   if (!t) return `${label}: price data unavailable`;
+   return [
+@@ -326,7 +356,7 @@ function extractJSON(text) {
+   throw new Error(`Cannot parse Claude JSON. Preview: ${text.slice(0, 300)}`);
+ }
+ 
+-async function analyzeWithClaude({ gold, silver, btc, dxy, fred, calendar, news }) {
++async function analyzeWithClaude({ gold, silver, btc, dxy, fred, calendar, news, meter }) {
+   const today = new Date().toLocaleDateString('en-US', {
+     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+   });
+@@ -361,6 +391,9 @@ DXY Proxy (USD/EUR): ${dxyStr}
+ US ECONOMIC INDICATORS — FRED Official Data
+ ${fredStr}
+ 
++SAFE-HAVEN METER — macro regime (0-100: >60 haven demand dominates, <40 rate/dollar headwind dominates)
++${buildMeterSection(meter)}
++
+ TECHNICAL ANALYSIS — Daily Close History
+ ${buildTechSection(gold?.technicals,   'GOLD   XAU/USD')}
+ 
+@@ -381,14 +414,19 @@ ${news.length ? news.join('\n') : 'No relevant headlines found'}
+ ASSET RELATIONSHIP TO ECONOMIC DATA — use this to guide your analysis:
+   Strong NFP / low unemployment  => USD up => metals down, BTC often down
+   Hot CPI / PPI                  => Rate-hike fears => metals mixed (inflation hedge vs rate drag), BTC bearish
++                                    (if the meter's Fed regime is "tightening": BEARISH for metals)
+   Fed rate cut signal            => USD down => all three rally
+   Geopolitical shock             => Gold/Silver up (safe-haven), BTC unpredictable
++                                    (if the Fed regime is "tightening", the bid fades fast: war -> oil -> inflation
++                                     -> more hikes -> gold DOWN, as in March 2026; de-escalation can be bullish)
+   Rate hike confirmed            => Gold bearish, Silver bearish, BTC strongly bearish
+   Risk-off environment           => Gold up, Silver up, BTC down (BTC = risk asset)
+   Yield curve inversion deepens  => Recession fear => Gold up, BTC mixed
+   Silver / Gold ratio rising     => Silver outperforming => industrial demand recovering
+ 
+ TASK: Produce trading signals for all three assets. Incorporate the technical patterns and macro backdrop.
++Treat the safe-haven meter as the macro backdrop for gold and silver: a gold BUY against a "bearish" read,
++or any high-confidence call during "caution", needs strong technical confirmation and should say why.
+ 
+ CRITICAL: Return ONLY valid JSON. No text before or after. No markdown fences. Raw JSON only.
+ 
+@@ -526,6 +564,7 @@ async function sendNtfy(result) {
+     `WATCH    : ${result.primary_catalyst}`,
+     `CORRELAT : ${result.correlation_note}`,
+     `Au/Ag    : ${result.gold_silver_ratio}`,
++    meterLine(result.meter),
+   ].filter(line => line !== null && line !== undefined).join('\n');
+ 
+   const r = await fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+@@ -568,6 +607,7 @@ async function sendTelegram(result) {
+     `_${b.reasoning}_`,
+     '',
+     `*Gold/Silver Ratio:* ${result.gold_silver_ratio}`,
++    ...(result.meter ? [meterLine(result.meter)] : []),
+   ].join('\n');
+ 
+   const r = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+@@ -617,11 +657,12 @@ async function main() {
+     const dxy    = await fetchDXY();
+ 
+     // FRED + Finnhub calls run in parallel (separate APIs — no rate conflict)
+-    const [btc, fred, calendar, news] = await Promise.all([
++    const [btc, fred, calendar, news, meter] = await Promise.all([
+       fetchBitcoinData(),
+       fetchFREDData(),
+       fetchCalendar(),
+       fetchNews(),
++      fetchSafeHaven(),
+     ]);
+ 
+     log('');
+@@ -632,10 +673,12 @@ async function main() {
+     log(`  CPI Index:    ${fred.cpi?.value          ?? 'N/A'}`);
+     log(`  Calendar:     ${calendar.length} upcoming US events`);
+     log(`  News:         ${news.length} relevant headlines`);
++    log(`  Meter:        ${meter ? `${meter.meter}/100 ${meter.zone}, Fed ${meter.regime}, bias ${meter.bias}` : 'unavailable'}`);
+     log('');
+ 
+     log('Calling Claude API for multi-asset analysis...');
+-    const result = await analyzeWithClaude({ gold, silver, btc, dxy, fred, calendar, news });
++    const result = await analyzeWithClaude({ gold, silver, btc, dxy, fred, calendar, news, meter });
++    result.meter = meter;   // carried through to the ntfy / Telegram messages
+ 
+     // Validate key fields
+     for (const asset of ['gold','silver','bitcoin']) {

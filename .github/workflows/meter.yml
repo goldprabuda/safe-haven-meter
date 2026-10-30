@@ -31,10 +31,11 @@ jobs:
         run: node src/run.mjs
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}             # optional but recommended (free)
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }} # optional
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}         # optional, same name as your gold pipeline
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}     # optional
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}                 # optional
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}              # optional, added to alerts
+          METER_HEARTBEAT_MIN: '120'                            # commit at least this often even if nothing changed
 
       - name: Commit updated data
         run: |

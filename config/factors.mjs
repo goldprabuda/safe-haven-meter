@@ -54,6 +54,12 @@ export const FACTORS = [
     source: { type: 'fred', id: 'BAMLH0A0HYM2' }, transform: { kind: 'level' },
     ...DAILY, weight: 1, dir: +1, unit: '%', publishRaw: false },
 
+  // ---- Fed-cycle gate (not a gauge) -----------------------------------------
+  // Used with fed_path below to decide whether the Fed is tightening. See GATES.fed.
+  { id: 'y2_60', gauge: 'gate', label: '2y Treasury yield, 60-day change',
+    source: { type: 'fred', id: 'DGS2' }, transform: { kind: 'chg', n: 60 },
+    ...DAILY, weight: 1, dir: +1, unit: 'pp' },
+
   // ---- Inflation impulse ----------------------------------------------------
   { id: 'breakeven', gauge: 'inflation', label: '10y breakeven inflation, 20-day change', chain: 'inflation',
     source: { type: 'fred', id: 'T10YIE' }, transform: { kind: 'chg', n: 20 },
@@ -101,10 +107,42 @@ export const DISPLAY = {
   cotSilver: { label: 'Managed money net long, silver', source: { type: 'cot', code: '084691' }, unit: '%' },
 };
 
+// Gates change HOW the gauges count, not what they measure.
+//
+// liquidity  In a credit crunch gold is sold with everything else (March 2020), so the
+//            fear bid's pull is cut.
+// fed        BIS research (Oct 2026) finds geopolitical shocks barely move gold while the
+//            Fed is tightening: an oil-driven war then means more hikes, higher real yields
+//            and a firmer dollar. So while hikes are priced:
+//              - the fear bid's pull is cut, and
+//              - the inflation impulse flips sign: hot inflation now means more hikes,
+//                which is bad for gold (gold fell on hot US inflation data on 23 Oct 2026).
+//            Enter/exit thresholds differ (hysteresis) so the regime doesn't flicker.
+//            fed_path = 2y yield minus the Fed's upper target; y2_60 = 2y yield, 60-day change.
+//
+// fearMult   pulls the fear gauge toward 50: 0.5 = counts half. Both gates on = 0.25.
+export const GATES = {
+  liquidity: { rank: 90, fearMult: 0.5 },
+  fed: {
+    tighten: { enterPath: 0.25, enterTrend: 0.25, exitPath: 0.15, exitTrend: 0.15 }, // either input above enter = tightening
+    ease:    { enterPath: -0.25, exitPath: -0.15, exitTrend: 0.15 },                  // cuts priced and 2y not rising
+    fearMult: 0.5,
+    inflationEffect: -1,
+  },
+};
+
+// What a trading bot should do with each trade read (published as data/signal.json).
+// lotFactor scales the bot's normal lot size; pyramid = allowed to add to winners.
+export const EA_POLICY = {
+  bullish: { allowLong: 1, allowShort: 0, lotFactor: 1.0, pyramid: 1 },
+  bearish: { allowLong: 0, allowShort: 1, lotFactor: 1.0, pyramid: 1 },
+  caution: { allowLong: 1, allowShort: 1, lotFactor: 0.5, pyramid: 0 },
+  neutral: { allowLong: 1, allowShort: 1, lotFactor: 1.0, pyramid: 1 },
+};
+
 // Alert thresholds. Cooldown stops the same alert repeating every run.
 export const ALERTS = {
   cooldownHours: 72,           // same alert at most once every 3 days
-  liquidityGate: 90,           // credit-spread rank above this = dash-for-cash risk
   zoneHysteresis: 3,           // points the meter must clear past a zone edge before the zone flips
   warZ: 2.0,                   // war threats or acts, z-score of the 7-day average
   oilJumpPct: 8,               // Brent move over 5 sessions

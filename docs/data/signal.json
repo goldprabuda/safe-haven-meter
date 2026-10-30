@@ -1,0 +1,21 @@
+{
+ "v": 1,
+ "generatedAt": "2026-10-30T05:00:02.617Z",
+ "generatedUnix": 1793336402,
+ "meter": 49.9,
+ "zone": "watch",
+ "bias": "neutral",
+ "regime": "tightening",
+ "flags": "fed_tightening",
+ "fear": 55,
+ "headwind": 41.9,
+ "inflation": 55.1,
+ "flows": 24.5,
+ "goldTrend": "down",
+ "silverRatio": 77.94,
+ "allowLong": 1,
+ "allowShort": 1,
+ "lotFactor": 1,
+ "pyramid": 1,
+ "note": "No strong macro edge. Let price structure lead."
+}

@@ -72,6 +72,9 @@ a { color: inherit; text-underline-offset: 2px }
 .chip { font: 500 11px/1 var(--mono); padding: 5px 7px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted) }
 .chip.warn { border-color: transparent; background: var(--warn-bg); color: var(--warn) }
 .chip.crit { border-color: transparent; background: var(--crit-bg); color: var(--crit) }
+.chip.weigh { border-color: transparent; background: color-mix(in oklab, var(--weigh) 16%, transparent); color: var(--weigh-ink) }
+.chip.lift { border-color: transparent; background: color-mix(in oklab, var(--lift) 16%, transparent); color: var(--lift-ink) }
+#regimeLine { line-height: 1.5; max-width: 70ch }
 
 /* gauges */
 .gauges { display: grid; gap: 10px }
@@ -176,6 +179,7 @@ footer p { margin: 4px 0; max-width: 110ch }
       <div class="read" aria-live="polite">
         <span class="bias neutral" id="bias">–</span>
         <p id="readText">Waiting for data.</p>
+        <div class="sub" id="regimeLine"></div>
         <div class="flags" id="flags"></div>
       </div>
       <div>
@@ -202,6 +206,8 @@ footer p { margin: 4px 0; max-width: 110ch }
         <span><i style="background:var(--fg)"></i>Meter</span>
         <span><i style="background:var(--lift)"></i>Fear bid</span>
         <span><i style="background:var(--weigh)"></i>Rate &amp; dollar headwind</span>
+        <span><i style="background:var(--weigh);height:6px;opacity:.75"></i>Fed tightening</span>
+        <span><i style="background:var(--lift);height:6px;opacity:.5"></i>Fed easing</span>
       </div>
     </div>
     <div class="chart" id="histChart"></div>
@@ -240,6 +246,7 @@ footer p { margin: 4px 0; max-width: 110ch }
         <li>Each factor is ranked against its own trailing history (about two years for daily data, ten for CPI). 50 means typical; 90 means hotter than 90% of that history. Gold's own price is never an input.</li>
         <li>Factor ranks average into four gauges. The meter blends them: fear bid 40%, rate &amp; dollar headwind 30% (inverted, because a strong headwind pushes gold down), inflation impulse 15%, flows &amp; positioning 15%.</li>
         <li>Liquidity gate: when the junk-bond spread ranks above 90, the fear bid counts half. In a dash for cash, gold is sold with everything else (March 2020).</li>
+        <li>Fed-cycle gate: when the 2-year yield sits more than 0.25 pp above the Fed's ceiling, or has risen more than 0.25 pp in 60 sessions, the Fed is treated as tightening. War fear then counts half (a quarter if credit is also stressed), and the inflation gauge flips: hot inflation means more hikes, which weighs on gold. It switches off below 0.15 pp on both, so it doesn't flicker. The strip under the history chart shows when it was on.</li>
         <li>The trade read combines the meter with gold's trend against its 50- and 200-day averages. A high meter with a falling price is a divergence, not a buy signal.</li>
         <li>Stale inputs count at half weight. Missing inputs drop out and the coverage figure under the dial falls.</li>
       </ul>
@@ -302,15 +309,20 @@ function dial(m) {
   svg.append(g, el('svg:circle', { cx, cy, r: 8, fill: 'var(--surface)', stroke: 'var(--fg)', 'stroke-width': 3 }));
 }
 
-function gaugeRows(G, gate) {
+function gaugeRows(G, gate, regime) {
   const box = $('gauges'); box.replaceChildren();
+  const gateWhy = [regime?.key === 'tightening' ? 'Fed tightening' : null, gate?.stressed ? 'credit stress' : null].filter(Boolean).join(' + ');
   for (const k of ['fear', 'headwind', 'inflation', 'flows']) {
     const g = G[k]; const s = g.score;
     const color = g.effect > 0 ? 'lift' : 'weigh';
+    const flipped = g.baseEffect != null && g.effect !== g.baseEffect;
     const lo = Math.min(50, s ?? 50), hi = Math.max(50, s ?? 50);
     const bar = el('div', { class: 'bar', role: 'img', 'aria-label': `${g.label} ${s ?? 'no data'} of 100` }, [
       el('div', { class: 'fill', style: `left:${lo}%;width:${hi - lo}%;background:var(--${color})` }), el('div', { class: 'mid' })]);
-    const note = k === 'fear' && g.beforeGate != null ? ` · halved by credit stress (was ${g.beforeGate})` : g.coverage < 1 ? ` · ${Math.round(g.coverage * 100)}% of inputs` : '';
+    let note = '';
+    if (k === 'fear' && g.beforeGate != null) note = ` · counts ${g.mult === 0.25 ? 'a quarter' : 'half'} under ${gateWhy} (was ${Math.round(g.beforeGate)})`;
+    else if (flipped) note = ' · flipped: hot inflation means more hikes';
+    else if (g.coverage < 1) note = ` · ${Math.round(g.coverage * 100)}% of inputs`;
     box.append(el('div', { class: 'g' }, [
       el('div', { class: 'name' }, [g.label, el('small', { text: (g.effect > 0 ? 'Lifts gold' : 'Weighs on gold') + ` · ${Math.round(g.weight * 100)}% of meter` + note })]),
       bar, el('div', { class: 'val', text: s == null ? '–' : Math.round(s) })]));
@@ -326,8 +338,8 @@ function chain(L) {
   const links = [
     ['War risk', F.gpr_acts?.value?.toFixed(0) ?? '–', `Acts ${F.gpr_acts?.value?.toFixed(0) ?? '–'} · threats ${F.gpr_threat?.value?.toFixed(0) ?? '–'} (GPR, 100 = 1985–2019 avg)`, heat('gpr_threat', 'gpr_acts'), 'lift'],
     ['Oil', usd(M.brent?.value), `Dated Brent · ${sgn(F.oil_shock?.value, 1, '%')} in 10 days · OVX ${F.ovx?.value?.toFixed(0) ?? '–'}`, heat('oil_shock', 'ovx'), 'lift'],
-    ['Inflation', pct(F.cpi?.value, 1), `CPI y/y · core ${pct(F.core_cpi?.value, 1)} · 10y breakeven ${pct(M.be10?.value)}`, heat('breakeven', 'cpi', 'core_cpi'), 'lift'],
-    ['Fed path', pct(M.fedUpper?.value), `${fedWord}: 2y at ${pct(M.y2?.value)}, ${sgn(fp, 2, ' pp')} vs ceiling`, heat('fed_path', 'y2_chg'), 'weigh'],
+    ['Inflation', pct(F.cpi?.value, 1), `CPI y/y · core ${pct(F.core_cpi?.value, 1)} · 10y breakeven ${pct(M.be10?.value)}` + (L.gauges.inflation.effect < 0 ? ' · now counts against gold' : ''), heat('breakeven', 'cpi', 'core_cpi'), L.gauges.inflation.effect < 0 ? 'weigh' : 'lift'],
+    ['Fed path', pct(M.fedUpper?.value), `${L.regime?.label ?? fedWord}: 2y at ${pct(M.y2?.value)}, ${sgn(fp, 2, ' pp')} vs ceiling`, heat('fed_path', 'y2_chg'), 'weigh'],
     ['Real yield & USD', pct(M.real10?.value), `10y TIPS, ${sgn(F.real_yield?.value * 100, 0, ' bp')} in 20 days · dollar ${sgn(F.dollar?.value, 1, '%')}`, heat('real_yield', 'dollar'), 'weigh'],
     ['Gold', usd(M.gold?.price, 0), gt ? `Trend ${gt.state} · ${sgn(gt.ret20, 1, '%')} in 20 days · 50-day ${usd(gt.sma50, 0)}` : 'Trend needs price history', null, 'mid'],
   ];
@@ -355,9 +367,9 @@ function market(L) {
   $('market').replaceChildren(...items.map(([k, v, t]) => el('div', { class: 'stat' }, [el('div', { class: 'k', text: k }), el('div', { class: 'v', text: v }), el('div', { class: 't', text: t || ' ' })])));
 }
 
-function lineChart(host, rows, series, { h = 220, yMin = 0, yMax = 100, refs = [50], fmt = v => Math.round(v), tipRows }) {
+function lineChart(host, rows, series, { h = 220, yMin = 0, yMax = 100, refs = [50], fmt = v => Math.round(v), tipRows, band = null }) {
   host.replaceChildren();
-  const W = Math.max(300, host.clientWidth), H = h, m = { l: 40, r: 12, t: 8, b: 22 };
+  const W = Math.max(300, host.clientWidth), H = h + (band ? 10 : 0), m = { l: 40, r: 12, t: 8, b: 22 + (band ? 10 : 0) };
   const pw = W - m.l - m.r, ph = H - m.t - m.b;
   const xs = i => m.l + (rows.length < 2 ? 0 : i / (rows.length - 1) * pw);
   const ys = v => m.t + ph - (v - yMin) / (yMax - yMin) * ph;
@@ -373,6 +385,13 @@ function lineChart(host, rows, series, { h = 220, yMin = 0, yMax = 100, refs = [
   const months = el('svg:g', { class: 'axis' }); let lastM = '';
   rows.forEach((r, i) => { const mo = r.d.slice(0, 7); if (mo !== lastM && r.d.slice(8) <= '07') { lastM = mo; if (xs(i) > m.l + 10 && xs(i) < W - 30) months.append(el('svg:text', { x: xs(i), y: H - 4, 'text-anchor': 'middle', text: new Date(r.d + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }) + (mo.endsWith('-01') ? " '" + mo.slice(2, 4) : '') })); } });
   svg.append(months);
+  if (band) {
+    const y = m.t + ph + 4, step = rows.length > 1 ? pw / (rows.length - 1) : pw;
+    rows.forEach((r, i) => {
+      const k = band[i]; if (k !== 't' && k !== 'e') return;
+      svg.append(el('svg:rect', { x: xs(i) - step / 2, y, width: step + 0.5, height: 6, fill: k === 't' ? 'var(--weigh)' : 'var(--lift)', opacity: k === 't' ? 0.75 : 0.5 }));
+    });
+  }
   for (const s of series) {
     let d = '', pen = false;
     rows.forEach((r, i) => { const v = r[s.key]; if (v == null) { pen = false; return; } d += (pen ? 'L' : 'M') + xs(i).toFixed(1) + ' ' + ys(v).toFixed(1); pen = true; });
@@ -399,12 +418,13 @@ function lineChart(host, rows, series, { h = 220, yMin = 0, yMax = 100, refs = [
 
 function history(H) {
   const rows = H.slice(-260);
+  const regimeBand = rows.map(r => r.regime);
   const r1 = v => v == null ? '–' : Math.round(v);
   lineChart($('histChart'), rows, [
     { key: 'fear', name: 'Fear bid', color: 'var(--lift)', w: 1.5, opacity: .9 },
     { key: 'headwind', name: 'Headwind', color: 'var(--weigh)', w: 1.5, opacity: .9 },
     { key: 'meter', name: 'Meter', color: 'var(--fg)', w: 2.25 }],
-    { tipRows: r => [`Meter     ${r1(r.meter)}`, `Fear      ${r1(r.fear)}`, `Headwind  ${r1(r.headwind)}`, `Inflation ${r1(r.inflation)}`, `Flows     ${r1(r.flows)}`] });
+    { band: regimeBand, tipRows: r => [`Meter     ${r1(r.meter)}`, `Fear      ${r1(r.fear)}`, `Headwind  ${r1(r.headwind)}`, `Inflation ${r1(r.inflation)}`, `Flows     ${r1(r.flows)}`, `Fed       ${({ t: 'tightening', e: 'easing', n: 'on hold' })[r.regime] ?? '–'}`] });
   const g = rows.filter(r => r.gold != null);
   if (g.length > 2) {
     const lo = Math.min(...g.map(r => r.gold)), hi = Math.max(...g.map(r => r.gold)), pad = (hi - lo) * .08;
@@ -430,11 +450,11 @@ function spark(vals, color) {
 
 function ledger(L) {
   const tb = $('factors'); tb.replaceChildren();
-  const groups = [['fear', 'Fear bid'], ['gate', 'Liquidity gate'], ['inflation', 'Inflation impulse'], ['headwind', 'Rate & dollar headwind'], ['flows', 'Flows & positioning']];
+  const groups = [['fear', 'Fear bid'], ['gate', 'Gates (change how fear and inflation count)'], ['inflation', 'Inflation impulse'], ['headwind', 'Rate & dollar headwind'], ['flows', 'Flows & positioning']];
   for (const [g, name] of groups) {
     const fs = L.factors.filter(f => f.gauge === g); if (!fs.length) continue;
     tb.append(el('tr', { class: 'grp' }, [el('td', { colspan: 4, text: name })]));
-    const color = g === 'headwind' ? 'weigh' : g === 'gate' ? 'mid' : 'lift';
+    const color = g === 'headwind' || (g === 'inflation' && L.gauges.inflation.effect < 0) ? 'weigh' : g === 'gate' ? 'mid' : 'lift';
     for (const f of fs) {
       const u = f.unit === '%' ? '%' : f.unit === 'pp' ? ' pp' : '';
       const val = f.restricted ? el('span', { class: 'faint', text: 'rank only' }) : f.value == null ? '–' : (Math.abs(f.value) >= 100 ? f.value.toFixed(0) : f.value.toFixed(2)) + u;
@@ -483,10 +503,12 @@ function render({ latest: L, history: H }) {
   const b = $('bias'); b.className = 'bias ' + L.read.bias;
   b.textContent = ({ bullish: '▲ Gold tailwind', bearish: '▼ Gold headwind', caution: '◆ Caution', neutral: '● No clear edge' })[L.read.bias];
   $('readText').textContent = L.read.text;
-  const F = { tug_of_war: ['Tug-of-war', 'warn'], divergence: ['Divergence', 'warn'], liquidity_stress: ['Credit stress', 'crit'] };
-  $('flags').replaceChildren(...L.read.flags.map(f => el('span', { class: 'chip ' + (F[f]?.[1] || ''), text: F[f]?.[0] || f })),
+  const F = { tug_of_war: ['Tug-of-war', 'warn'], divergence: ['Divergence', 'warn'], liquidity_stress: ['Credit stress', 'crit'], war_vs_fed: ['War vs Fed', 'warn'], fed_tightening: null };
+  const R = L.regime;
+  $('regimeLine').replaceChildren(R ? el('span', {}, [el('span', { class: 'chip ' + (R.key === 'tightening' ? 'weigh' : R.key === 'easing' ? 'lift' : ''), text: R.label }), ' ', R.text]) : '');
+  $('flags').replaceChildren(...L.read.flags.filter(f => F[f] !== null).map(f => el('span', { class: 'chip ' + (F[f]?.[1] || ''), text: F[f]?.[0] || f })),
     L.gate?.score != null ? el('span', { class: 'chip', text: `Credit stress rank ${Math.round(L.gate.score)} (gate at ${L.gate.threshold})` }) : null);
-  gaugeRows(L.gauges, L.gate); chain(L); market(L); ledger(L); sideNotes(L);
+  gaugeRows(L.gauges, L.gate, L.regime); chain(L); market(L); ledger(L); sideNotes(L);
   history(H);
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => history(H), 150); });
 }

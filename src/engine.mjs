@@ -1,5 +1,5 @@
 // Scoring engine: factor z-scores -> gauges -> meter -> regime, trend and silver tilt.
-import { GAUGES, FACTORS, ZONES, ALERTS } from '../config/factors.mjs';
+import { GAUGES, FACTORS, ZONES, GATES } from '../config/factors.mjs';
 import { fred, gpr, cotManagedMoney, gldHoldings, withCache } from './sources.mjs';
 import { transform, combine, asOfIndex, zAt, rankAt, daysBetween, addDays, sma, round, iso } from './lib.mjs';
 
@@ -44,7 +44,7 @@ export async function loadDisplay(display) {
 // ---------- scoring ----------
 // live=true  -> use the latest observation available now
 // live=false -> back-fill: only use observations that were published by `date`
-export function scoreAt(data, date, { live = false, factors = FACTORS } = {}) {
+export function scoreAt(data, date, { live = false, factors = FACTORS, prevRegime = 'neutral' } = {}) {
   const fScores = {};
   for (const f of factors) {
     const s = data[f.id]?.tx ?? [];
@@ -74,22 +74,60 @@ export function scoreAt(data, date, { live = false, factors = FACTORS } = {}) {
     gauges[g] = { score: wSum ? sSum / wSum : null, coverage: total ? covered / total : 0 };
   }
 
-  // Liquidity gate: in a credit crunch the fear bid is halved (dash for cash).
+  // ---- Gates (see GATES in config) ----
   const gate = fScores.hy?.score ?? null;
-  const stressed = gate !== null && gate >= ALERTS.liquidityGate;
-  if (stressed && gauges.fear.score !== null) gauges.fear.raw = gauges.fear.score, gauges.fear.score = 50 + (gauges.fear.score - 50) * 0.5;
+  const stressed = gate !== null && gate >= GATES.liquidity.rank;
+  const regime = fedRegime(fScores.fed_path?.value, fScores.y2_60?.value, prevRegime);
+
+  let fearMult = 1;
+  if (stressed) fearMult *= GATES.liquidity.fearMult;
+  if (regime === 'tightening') fearMult *= GATES.fed.fearMult;
+  if (fearMult < 1 && gauges.fear.score !== null) {
+    gauges.fear.raw = gauges.fear.score;
+    gauges.fear.score = 50 + (gauges.fear.score - 50) * fearMult;
+  }
+  gauges.fear.mult = fearMult;
+
+  const effect = {};
+  for (const [g, G] of Object.entries(GAUGES)) effect[g] = G.effect;
+  if (regime === 'tightening') effect.inflation = GATES.fed.inflationEffect;
+  for (const g of Object.keys(GAUGES)) gauges[g].effect = effect[g];
 
   let mW = 0, mS = 0;
   for (const [g, G] of Object.entries(GAUGES)) {
     const s = gauges[g].score;
     if (s === null) continue;
     const w = G.weight * gauges[g].coverage;
-    mW += w; mS += w * (G.effect > 0 ? s : 100 - s);
+    mW += w; mS += w * (effect[g] > 0 ? s : 100 - s);
   }
   const meter = mW ? mS / mW : null;
   const coverage = mW / Object.values(GAUGES).reduce((a, G) => a + G.weight, 0);
-  return { date, meter, coverage, gauges, gate: { score: gate, stressed }, factors: fScores };
+  return { date, meter, coverage, gauges, regime, gate: { score: gate, stressed }, factors: fScores };
 }
+
+// Fed regime from market pricing, with hysteresis. Returns 'tightening' | 'easing' | 'neutral'.
+// Unknown inputs keep the previous regime (or neutral).
+export function fedRegime(path, trend60, prev = 'neutral') {
+  const T = GATES.fed.tighten, E = GATES.fed.ease;
+  const p = Number.isFinite(path) ? path : null, t = Number.isFinite(trend60) ? trend60 : null;
+  if (p === null && t === null) return prev ?? 'neutral';
+  if (prev === 'tightening') {
+    const stillTight = (p !== null && p > T.exitPath) || (t !== null && t > T.exitTrend);
+    if (stillTight) return 'tightening';
+  } else if ((p !== null && p > T.enterPath) || (t !== null && t > T.enterTrend)) {
+    return 'tightening';
+  }
+  // Easing: cuts priced and the 2y not rising. Once in, a small 2y bounce (< exitTrend) doesn't end it.
+  if (prev === 'easing' && p !== null && p < E.exitPath && (t === null || t < E.exitTrend)) return 'easing';
+  if (p !== null && p < E.enterPath && (t === null || t <= 0)) return 'easing';
+  return 'neutral';
+}
+
+export const REGIME_TEXT = {
+  tightening: { label: 'Fed tightening', text: 'Hikes are priced. War fear counts half, and hot inflation now counts against gold because it means more hikes.' },
+  easing: { label: 'Fed easing', text: 'Cuts are priced. Fear and inflation both count fully for gold.' },
+  neutral: { label: 'Fed on hold', text: 'No clear rate path priced. Gauges count normally.' },
+};
 
 export const zoneOf = (m, prevKey = null, hysteresis = 0) => {
   const idx = ZONES.findIndex(z => m < z.max);
@@ -116,10 +154,11 @@ export function trend(series) {
   return { price: px, asOf: series[i].d, sma50: s50, sma200: s200, ret20: r20, state, points: series.length };
 }
 
-export function tradeRead(meter, gauges, goldTrend, tugLevel = 65, gate = {}) {
+export function tradeRead(meter, gauges, goldTrend, tugLevel = 65, gate = {}, regime = 'neutral') {
   const t = goldTrend?.state ?? 'unknown';
   const fear = gauges.fear.raw ?? gauges.fear.score ?? 50, head = gauges.headwind.score ?? 50;
   const flags = [];
+  if (regime === 'tightening') flags.push('fed_tightening');
   if (gate.stressed) flags.push('liquidity_stress');
   if (fear >= tugLevel && head >= tugLevel) flags.push('tug_of_war');
   if (meter >= 60 && t === 'down') flags.push('divergence');
@@ -131,6 +170,10 @@ export function tradeRead(meter, gauges, goldTrend, tugLevel = 65, gate = {}) {
   } else if (flags.includes('tug_of_war')) {
     bias = 'caution';
     text = 'Tug-of-war: war fear is lifting gold while a hawkish Fed and rising yields push back. Expect sharp two-way swings; size down and trade the range.';
+  } else if (regime === 'tightening' && fear >= tugLevel) {
+    bias = 'caution';
+    flags.push('war_vs_fed');
+    text = 'War fear is high but the Fed is tightening. In 2026 escalation pushed oil, yields and the dollar up and gold down, while oil relief lifted gold. Don\'t buy the headline; wait for price to confirm.';
   } else if (meter >= 60 && t === 'up') {
     bias = 'bullish';
     text = 'Tailwind aligned: safe-haven demand is high and gold is trending up. Dips toward the 50-day average are the higher-quality entries.';
@@ -170,17 +213,20 @@ export function silverTilt(gold, silver, meter) {
 export function backfill(data, days = 400, goldSeries = []) {
   const end = iso(Date.now());
   const out = [];
+  let regime = 'neutral';
   for (let k = days; k >= 0; k--) {
     const d = addDays(end, -k);
     const wd = new Date(d).getUTCDay();
     if (wd === 0 || wd === 6) continue;
-    const r = scoreAt(data, d);
+    const r = scoreAt(data, d, { prevRegime: regime });
+    regime = r.regime;
     if (r.meter === null) continue;
     const gi = asOfIndex(goldSeries, d);
     out.push({
       d, meter: round(r.meter, 1),
       fear: round(r.gauges.fear.score, 1), inflation: round(r.gauges.inflation.score, 1),
       headwind: round(r.gauges.headwind.score, 1), flows: round(r.gauges.flows.score, 1),
+      regime: r.regime[0],                       // t / e / n
       gold: gi >= 0 ? goldSeries[gi].v : null,
     });
   }

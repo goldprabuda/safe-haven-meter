@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { transform, rankAt, combine } from '../src/lib.mjs';
-import { zoneOf, tradeRead, scoreAt } from '../src/engine.mjs';
+import { zoneOf, tradeRead, scoreAt, fedRegime } from '../src/engine.mjs';
 import { FACTORS } from '../config/factors.mjs';
 
 const S = pairs => pairs.map(([d, v]) => ({ d, v }));
@@ -44,13 +44,62 @@ test('trade read flags tug-of-war, divergence and credit stress', () => {
   assert.equal(tradeRead(60, g(80, 30), { state: 'up' }, 65, { stressed: true }).bias, 'caution');
 });
 
-test('liquidity gate halves the fear bid when credit spreads are extreme', () => {
+// Synthetic data: every factor's latest value is its all-time high (rank ~100),
+// so fear, inflation, headwind and flows all read ~100 before gates.
+function hotData(overrides = {}) {
   const days = Array.from({ length: 300 }, (_, i) => new Date(Date.UTC(2025, 0, 1) + i * 864e5).toISOString().slice(0, 10));
-  const rising = days.map((d, i) => ({ d, v: i }));          // latest value = all-time high -> rank ~100
+  const rising = days.map((d, i) => ({ d, v: i / 100 }));
   const data = {};
-  for (const f of FACTORS) data[f.id] = { tx: transform(rising, f.gauge === 'gate' ? { kind: 'level' } : { kind: 'level' }) };
-  const r = scoreAt(data, days.at(-1), { live: true });
+  for (const f of FACTORS) data[f.id] = { tx: overrides[f.id] ? overrides[f.id](days) : rising };
+  return { data, date: days.at(-1) };
+}
+const flat = v => days => days.map(d => ({ d, v }));
+const calmCredit = days => days.map((d, i) => ({ d, v: 300 - i }));   // spread falling -> rank ~0
+
+test('liquidity gate halves the fear bid when credit spreads are extreme', () => {
+  const { data, date } = hotData({ fed_path: flat(0), y2_60: flat(0) });
+  const r = scoreAt(data, date, { live: true });
   assert.equal(r.gate.stressed, true);
-  assert.ok(r.gauges.fear.score < r.gauges.fear.raw, 'fear pulled toward 50');
-  assert.ok(Math.abs(r.gauges.fear.score - (50 + (r.gauges.fear.raw - 50) / 2)) < 1e-9);
+  assert.equal(r.regime, 'neutral');
+  assert.ok(Math.abs(r.gauges.fear.score - (50 + (r.gauges.fear.raw - 50) * 0.5)) < 1e-9);
+});
+
+test('Fed regime: enter, hold with hysteresis, exit, easing', () => {
+  assert.equal(fedRegime(0.30, 0.0, 'neutral'), 'tightening', 'hikes priced');
+  assert.equal(fedRegime(0.0, 0.30, 'neutral'), 'tightening', '2y up 30bp in 60 days');
+  assert.equal(fedRegime(0.20, 0.0, 'tightening'), 'tightening', 'between exit and enter: hold');
+  assert.equal(fedRegime(0.20, 0.0, 'neutral'), 'neutral', 'between exit and enter: no entry');
+  assert.equal(fedRegime(0.10, 0.10, 'tightening'), 'neutral', 'both below exit: leave');
+  assert.equal(fedRegime(-0.30, -0.05, 'neutral'), 'easing', 'cuts priced, 2y not rising');
+  assert.equal(fedRegime(-0.30, 0.10, 'neutral'), 'neutral', 'cuts priced but 2y rising: not easing');
+  assert.equal(fedRegime(null, null, 'tightening'), 'tightening', 'missing data keeps regime');
+});
+
+test('Fed tightening halves fear and flips inflation to count against gold', () => {
+  const { data, date } = hotData({ hy: calmCredit, fed_path: flat(0.6), y2_60: flat(0.4) });
+  const tight = scoreAt(data, date, { live: true });
+  assert.equal(tight.regime, 'tightening');
+  assert.equal(tight.gate.stressed, false);
+  assert.equal(tight.gauges.fear.mult, 0.5);
+  assert.equal(tight.gauges.inflation.effect, -1);
+
+  const { data: d2 } = hotData({ hy: calmCredit, fed_path: flat(0), y2_60: flat(0) });
+  const normal = scoreAt(d2, date, { live: true });
+  assert.equal(normal.regime, 'neutral');
+  assert.equal(normal.gauges.inflation.effect, 1);
+  assert.ok(tight.meter < normal.meter, `hot inflation lowers the meter when tightening (${tight.meter.toFixed(1)} < ${normal.meter.toFixed(1)})`);
+});
+
+test('both gates together cut fear to a quarter', () => {
+  const { data, date } = hotData({ fed_path: flat(0.6), y2_60: flat(0.4) });
+  const r = scoreAt(data, date, { live: true });
+  assert.equal(r.gate.stressed, true);
+  assert.equal(r.gauges.fear.mult, 0.25);
+});
+
+test('war fear during tightening reads caution, not bullish', () => {
+  const g = { fear: { score: 60, raw: 85 }, headwind: { score: 40 } };
+  const r = tradeRead(70, g, { state: 'up' }, 65, {}, 'tightening');
+  assert.equal(r.bias, 'caution');
+  assert.ok(r.flags.includes('war_vs_fed') && r.flags.includes('fed_tightening'));
 });
