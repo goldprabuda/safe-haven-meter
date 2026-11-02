@@ -2,8 +2,18 @@
  "zone": "watch",
  "zoneLabel": "Watchful",
  "fedRegime": "tightening",
- "fingerprint": "[53.5,\"watch\",\"tightening\",\"neutral\",[\"fed_tightening\"],55,36,40,28,\"2026-11-02\",[\"2026-10-26\",\"2026-10-26\",\"2026-10-27\",\"2026-10-29\",\"2026-10-29\",\"2026-10-29\",\"2026-10-29\",\"2026-10-29\",\"2026-10-30\",\"2026-09-01\",\"2026-09-01\",\"2026-10-29\",\"2026-10-29\",\"2026-10-29\",\"2026-10-23\",\"2026-10-27\",\"2026-10-30\"]]",
- "sent": {},
- "log": [],
- "updatedAt": "2026-11-02T05:53:25.385Z"
+ "fingerprint": "[52,\"watch\",\"tightening\",\"caution\",[\"fed_tightening\",\"liquidity_stress\"],51,36,40,28,\"2026-11-02\",[\"2026-11-02\",\"2026-11-02\",\"2026-10-27\",\"2026-10-30\",\"2026-10-30\",\"2026-10-30\",\"2026-10-30\",\"2026-10-29\",\"2026-10-30\",\"2026-09-01\",\"2026-09-01\",\"2026-10-29\",\"2026-10-29\",\"2026-10-29\",\"2026-10-23\",\"2026-10-27\",\"2026-10-30\"]]",
+ "sent": {
+  "liquidity": "2026-11-02T15:38:45.063Z"
+ },
+ "log": [
+  {
+   "at": "2026-11-02T15:38:45.064Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  }
+ ],
+ "updatedAt": "2026-11-02T15:38:45.070Z"
 }
