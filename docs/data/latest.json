@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-05T09:23:26.252Z",
- "meter": 53.8,
+ "generatedAt": "2026-11-05T17:37:39.734Z",
+ "meter": 53,
  "coverage": 1,
  "zone": {
   "key": "watch",
@@ -13,9 +13,9 @@
    "weight": 0.4,
    "effect": 1,
    "baseEffect": 1,
-   "score": 50.5,
+   "score": 48.4,
    "coverage": 1,
-   "beforeGate": 52.1,
+   "beforeGate": 43.6,
    "mult": 0.25
   },
   "inflation": {
@@ -70,7 +70,7 @@
  },
  "gate": {
   "label": "Credit stress (junk-bond spread rank)",
-  "score": 92.8,
+  "score": 91.6,
   "stressed": true,
   "threshold": 90
  },
@@ -489,15 +489,14 @@
    "gauge": "fear",
    "chain": "oil",
    "unit": "",
-   "asOf": "2026-11-03",
-   "z": 0.88,
-   "score": 85.2,
+   "asOf": "2026-11-04",
+   "z": 0.71,
+   "score": 81.3,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 61.69,
+   "value": 58.81,
    "spark": [
-    68.92,
     72.35,
     72.07,
     72.89,
@@ -616,7 +615,8 @@
     57.16,
     58.48,
     62.69,
-    61.69
+    61.69,
+    58.81
    ]
   },
   {
@@ -625,15 +625,14 @@
    "gauge": "fear",
    "chain": null,
    "unit": "",
-   "asOf": "2026-11-03",
-   "z": 0.55,
-   "score": 82.4,
+   "asOf": "2026-11-04",
+   "z": -0.4,
+   "score": 41.8,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 20.83,
+   "value": 16.61,
    "spark": [
-    17.44,
     16.76,
     16.7,
     16.59,
@@ -752,7 +751,8 @@
     17.2,
     19.42,
     21.15,
-    20.83
+    20.83,
+    16.61
    ]
   },
   {
@@ -761,15 +761,14 @@
    "gauge": "fear",
    "chain": null,
    "unit": "",
-   "asOf": "2026-11-03",
-   "z": 0.48,
-   "score": 73,
+   "asOf": "2026-11-04",
+   "z": 0.2,
+   "score": 61,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 25.82,
+   "value": 24.11,
    "spark": [
-    25.79,
     26.34,
     26.2,
     26.63,
@@ -888,7 +887,8 @@
     22.73,
     26.15,
     25.45,
-    25.82
+    25.82,
+    24.11
    ]
   },
   {
@@ -897,9 +897,9 @@
    "gauge": "gate",
    "chain": null,
    "unit": "%",
-   "asOf": "2026-11-03",
-   "z": 1.39,
-   "score": 92.8,
+   "asOf": "2026-11-04",
+   "z": 1.13,
+   "score": 91.6,
    "stale": false,
    "error": null,
    "weight": 1,
@@ -2033,38 +2033,38 @@
   ]
  },
  "silver": {
-  "ratio": 78.37970208536777,
-  "chg20": 7.998419781555128,
+  "ratio": 78.44442468038444,
+  "chg20": 8.063142376571804,
   "text": "Ratio rising in calm conditions: silver lagging; gold the steadier choice."
  },
  "market": {
   "gold": {
-   "price": 4128.600098,
-   "at": "2026-11-05T09:22:31Z",
+   "price": 4109.100098,
+   "at": "2026-11-05T17:36:32Z",
    "trend": {
-    "price": 4140.7998046875,
+    "price": 4125,
     "asOf": "2026-11-05",
-    "sma50": 4242.74998046875,
-    "sma200": 4505.82449584961,
-    "ret20": -0.389708811943712,
+    "sma50": 4242.433984375,
+    "sma200": 4505.745496826172,
+    "ret20": -0.76978590329565,
     "state": "down",
     "points": 509
    }
   },
   "silver": {
-   "price": 52.931,
-   "at": "2026-11-05T09:22:31Z",
+   "price": 52.521,
+   "at": "2026-11-05T17:36:32Z",
    "trend": {
-    "price": 52.83000183105469,
+    "price": 52.584999084472656,
     "asOf": "2026-11-05",
-    "sma50": 60.340179977416994,
-    "sma200": 70.07621988296509,
-    "ret20": -10.554648232321417,
+    "sma50": 60.33527992248535,
+    "sma200": 70.07499486923217,
+    "ret20": -10.969457168390683,
     "state": "down",
     "points": 509
    }
   },
-  "goldInr10g": 126021,
+  "goldInr10g": 125426,
   "brent": {
    "value": 107.03,
    "asOf": "2026-11-03",
@@ -2077,7 +2077,7 @@
   },
   "fedUpper": {
    "value": 4,
-   "asOf": "2026-11-04",
+   "asOf": "2026-11-05",
    "label": "Fed funds ceiling"
   },
   "y2": {
@@ -2230,10 +2230,17 @@
   3969.60009765625,
   3940.39990234375,
   4073,
-  4140.7998046875
+  4125
  ],
  "events": [],
  "alerts": [
+  {
+   "at": "2026-11-05T17:37:39.724Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-02T15:38:45.064Z",
    "key": "liquidity",
