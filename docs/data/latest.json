@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T13:29:22.927Z",
+ "generatedAt": "2026-11-08T22:09:51.787Z",
  "meter": 55.1,
  "coverage": 1,
  "zone": {
@@ -2040,7 +2040,7 @@
  "market": {
   "gold": {
    "price": 4072.100098,
-   "at": "2026-11-08T13:28:52Z",
+   "at": "2026-11-08T22:09:23Z",
    "trend": {
     "price": 4074.89990234375,
     "asOf": "2026-11-06",
@@ -2053,7 +2053,7 @@
   },
   "silver": {
    "price": 52.070999,
-   "at": "2026-11-08T13:28:52Z",
+   "at": "2026-11-08T22:09:22Z",
    "trend": {
     "price": 51.94200134277344,
     "asOf": "2026-11-06",
@@ -2234,6 +2234,13 @@
  ],
  "events": [],
  "alerts": [
+  {
+   "at": "2026-11-08T22:09:51.781Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-05T17:37:39.724Z",
    "key": "liquidity",

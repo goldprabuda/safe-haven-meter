@@ -4,9 +4,16 @@
  "fedRegime": "tightening",
  "fingerprint": "[55,\"watch\",\"tightening\",\"caution\",[\"fed_tightening\",\"liquidity_stress\"],51,24,35,25,\"2026-11-06\",[\"2026-11-02\",\"2026-11-02\",\"2026-11-03\",\"2026-11-05\",\"2026-11-05\",\"2026-11-05\",\"2026-11-05\",\"2026-11-05\",\"2026-11-06\",\"2026-09-01\",\"2026-09-01\",\"2026-11-05\",\"2026-11-05\",\"2026-11-05\",\"2026-10-30\",\"2026-11-03\",\"2026-11-05\"]]",
  "sent": {
-  "liquidity": "2026-11-05T17:37:39.723Z"
+  "liquidity": "2026-11-08T22:09:51.781Z"
  },
  "log": [
+  {
+   "at": "2026-11-08T22:09:51.781Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-05T17:37:39.724Z",
    "key": "liquidity",
@@ -22,5 +29,5 @@
    "level": "high"
   }
  ],
- "updatedAt": "2026-11-08T13:29:22.927Z"
+ "updatedAt": "2026-11-08T22:09:51.787Z"
 }
