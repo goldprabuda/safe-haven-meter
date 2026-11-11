@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-11T17:26:18.245Z",
+ "generatedAt": "2026-11-11T23:41:59.009Z",
  "meter": 53.8,
  "coverage": 1,
  "zone": {
@@ -2033,38 +2033,38 @@
   ]
  },
  "silver": {
-  "ratio": 76.91746678906891,
-  "chg20": 2.9678725719165584,
+  "ratio": 77.5508237460662,
+  "chg20": 3.601229528913848,
   "text": "Ratio rising in calm conditions: silver lagging; gold the steadier choice."
  },
  "market": {
   "gold": {
-   "price": 4007.300049,
-   "at": "2026-11-11T17:25:30Z",
+   "price": 3982.699951,
+   "at": "2026-11-11T23:41:30Z",
    "trend": {
-    "price": 4007.39990234375,
+    "price": 3986.5,
     "asOf": "2026-11-11",
-    "sma50": 4205.3079833984375,
-    "sma200": 4486.531994628906,
-    "ret20": -2.4465055719264273,
+    "sma50": 4204.889985351562,
+    "sma200": 4486.427495117187,
+    "ret20": -2.9552789802518187,
     "state": "down",
     "points": 513
    }
   },
   "silver": {
-   "price": 52.313999,
-   "at": "2026-11-11T17:25:29Z",
+   "price": 51.425999,
+   "at": "2026-11-11T23:41:30Z",
    "trend": {
-    "price": 52.099998474121094,
+    "price": 51.404998779296875,
     "asOf": "2026-11-11",
-    "sma50": 59.1343399810791,
-    "sma200": 69.02355485916138,
-    "ret20": -6.21062252083302,
+    "sma50": 59.120439987182614,
+    "sma200": 69.02007986068726,
+    "ret20": -7.461747101156224,
     "state": "down",
     "points": 513
    }
   },
-  "goldInr10g": 120991,
+  "goldInr10g": 120249,
   "brent": {
    "value": 107.03,
    "asOf": "2026-11-03",
@@ -2230,10 +2230,17 @@
   4074.89990234375,
   4114.5,
   4030.199951171875,
-  4007.39990234375
+  3986.5
  ],
  "events": [],
  "alerts": [
+  {
+   "at": "2026-11-11T23:41:59.002Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-08T22:09:51.781Z",
    "key": "liquidity",
