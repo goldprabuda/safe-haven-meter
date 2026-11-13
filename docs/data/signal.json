@@ -1,7 +1,7 @@
 {
  "v": 1,
- "generatedAt": "2026-11-13T02:53:32.983Z",
- "generatedUnix": 1794538412,
+ "generatedAt": "2026-11-13T10:51:38.504Z",
+ "generatedUnix": 1794567098,
  "meter": 49,
  "zone": "watch",
  "bias": "caution",
@@ -12,7 +12,7 @@
  "inflation": 24.5,
  "flows": 25.9,
  "goldTrend": "down",
- "silverRatio": 77.49,
+ "silverRatio": 78.15,
  "allowLong": 1,
  "allowShort": 1,
  "lotFactor": 0.5,
