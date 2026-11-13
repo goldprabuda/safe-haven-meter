@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-13T18:29:30.756Z",
- "meter": 49.5,
+ "generatedAt": "2026-11-13T23:50:46.387Z",
+ "meter": 45,
  "coverage": 1,
  "zone": {
   "key": "watch",
@@ -24,7 +24,7 @@
    "weight": 0.15,
    "effect": -1,
    "baseEffect": 1,
-   "score": 24.5,
+   "score": 27.4,
    "coverage": 1
   },
   "headwind": {
@@ -33,7 +33,7 @@
    "weight": 0.3,
    "effect": -1,
    "baseEffect": -1,
-   "score": 53.1,
+   "score": 66.5,
    "coverage": 1
   },
   "flows": {
@@ -50,8 +50,8 @@
   "key": "tightening",
   "label": "Fed tightening",
   "text": "Hikes are priced. War fear counts half, and hot inflation now counts against gold because it means more hikes.",
-  "fedPath": 0.73,
-  "y2Trend60": 0.56,
+  "fedPath": 0.86,
+  "y2Trend60": 0.67,
   "rules": {
    "tighten": {
     "enterPath": 0.25,
@@ -913,15 +913,14 @@
    "gauge": "gate",
    "chain": null,
    "unit": "pp",
-   "asOf": "2026-11-10",
-   "z": 1.43,
-   "score": 92,
+   "asOf": "2026-11-12",
+   "z": 1.76,
+   "score": 97.1,
    "stale": false,
    "error": null,
    "weight": 1,
-   "value": 0.56,
+   "value": 0.67,
    "spark": [
-    0.59,
     0.66,
     0.75,
     0.54,
@@ -1040,7 +1039,8 @@
     0.24,
     0.31,
     0.41,
-    0.56
+    0.56,
+    0.67
    ]
   },
   {
@@ -1049,15 +1049,14 @@
    "gauge": "inflation",
    "chain": "inflation",
    "unit": "pp",
-   "asOf": "2026-11-12",
-   "z": -1.43,
-   "score": 8.3,
+   "asOf": "2026-11-13",
+   "z": -1.04,
+   "score": 15.4,
    "stale": false,
    "error": null,
    "weight": 0.4,
-   "value": -0.11,
+   "value": -0.08,
    "spark": [
-    -0.03,
     -0.02,
     -0.04,
     -0.05,
@@ -1176,7 +1175,8 @@
     -0.12,
     -0.11,
     -0.13,
-    -0.11
+    -0.11,
+    -0.08
    ]
   },
   {
@@ -1333,15 +1333,14 @@
    "gauge": "headwind",
    "chain": "fed",
    "unit": "pp",
-   "asOf": "2026-11-10",
-   "z": 1.87,
-   "score": 94.5,
+   "asOf": "2026-11-12",
+   "z": 2.11,
+   "score": 98.3,
    "stale": false,
    "error": null,
    "weight": 0.25,
-   "value": 0.73,
+   "value": 0.86,
    "spark": [
-    0.29,
     0.33,
     0.38,
     0.26,
@@ -1460,7 +1459,8 @@
     0.46,
     0.51,
     0.56,
-    0.73
+    0.73,
+    0.86
    ]
   },
   {
@@ -1469,15 +1469,14 @@
    "gauge": "headwind",
    "chain": null,
    "unit": "pp",
-   "asOf": "2026-11-10",
-   "z": -0.45,
-   "score": 36.6,
+   "asOf": "2026-11-12",
+   "z": 0.08,
+   "score": 57.1,
    "stale": false,
    "error": null,
    "weight": 0.2,
-   "value": -0.06,
+   "value": 0.04,
    "spark": [
-    0.25,
     0.25,
     0.35,
     0.23,
@@ -1596,7 +1595,8 @@
     -0.31,
     -0.24,
     -0.24,
-    -0.06
+    -0.06,
+    0.04
    ]
   },
   {
@@ -1605,15 +1605,14 @@
    "gauge": "headwind",
    "chain": "real",
    "unit": "pp",
-   "asOf": "2026-11-10",
-   "z": -0.82,
-   "score": 21.3,
+   "asOf": "2026-11-12",
+   "z": -0.08,
+   "score": 49.2,
    "stale": false,
    "error": null,
    "weight": 0.3,
-   "value": -0.1,
+   "value": 0.02,
    "spark": [
-    0.21,
     0.26,
     0.27,
     0.19,
@@ -1732,7 +1731,8 @@
     -0.32,
     -0.24,
     -0.25,
-    -0.1
+    -0.1,
+    0.02
    ]
   },
   {
@@ -2032,38 +2032,38 @@
   ]
  },
  "silver": {
-  "ratio": 79.1977164326064,
-  "chg20": 5.838646759614207,
+  "ratio": 79.90955756883744,
+  "chg20": 6.550487895845251,
   "text": "Ratio rising in calm conditions: silver lagging; gold the steadier choice."
  },
  "market": {
   "gold": {
-   "price": 3889.600098,
-   "at": "2026-11-13T18:28:55Z",
+   "price": 3887.600098,
+   "at": "2026-11-13T23:49:56Z",
    "trend": {
-    "price": 3889.39990234375,
+    "price": 3887.60009765625,
     "asOf": "2026-11-13",
-    "sma50": 4181.573984375,
-    "sma200": 4472.260994873047,
-    "ret20": -6.9766374518518415,
+    "sma50": 4181.53798828125,
+    "sma200": 4472.25199584961,
+    "ret20": -7.0196836513080285,
     "state": "down",
     "points": 515
    }
   },
   "silver": {
-   "price": 49.110001,
-   "at": "2026-11-13T18:28:55Z",
+   "price": 48.650002,
+   "at": "2026-11-13T23:49:55Z",
    "trend": {
-    "price": 49.11000061035156,
+    "price": 48.650001525878906,
     "asOf": "2026-11-13",
-    "sma50": 58.47768005371094,
-    "sma200": 68.38212985992432,
-    "ret20": -13.834544204407539,
+    "sma50": 58.468480072021485,
+    "sma200": 68.37982986450196,
+    "ret20": -14.641630954286079,
     "state": "down",
     "points": 515
    }
   },
-  "goldInr10g": 117438,
+  "goldInr10g": 117377,
   "brent": {
    "value": 92.14,
    "asOf": "2026-11-11",
@@ -2080,23 +2080,23 @@
    "label": "Fed funds ceiling"
   },
   "y2": {
-   "value": 4.73,
-   "asOf": "2026-11-10",
+   "value": 4.86,
+   "asOf": "2026-11-12",
    "label": "2y yield"
   },
   "y10": {
-   "value": 4.98,
-   "asOf": "2026-11-10",
+   "value": 5.1,
+   "asOf": "2026-11-12",
    "label": "10y yield"
   },
   "real10": {
-   "value": 2.78,
-   "asOf": "2026-11-10",
+   "value": 2.86,
+   "asOf": "2026-11-12",
    "label": "10y real yield"
   },
   "be10": {
    "value": 2.24,
-   "asOf": "2026-11-12",
+   "asOf": "2026-11-13",
    "label": "10y breakeven"
   },
   "usdinr": {
@@ -2229,7 +2229,7 @@
   4030.199951171875,
   4000.5,
   3885.300048828125,
-  3889.39990234375
+  3887.60009765625
  ],
  "events": [],
  "alerts": [
