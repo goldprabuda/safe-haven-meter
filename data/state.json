@@ -1,12 +1,36 @@
 {
- "zone": "watch",
- "zoneLabel": "Watchful",
+ "zone": "calm",
+ "zoneLabel": "Calm",
  "fedRegime": "tightening",
- "fingerprint": "[44,\"watch\",\"tightening\",\"neutral\",[\"fed_tightening\"],50,27,67,23,\"2026-11-16\",[\"2026-11-16\",\"2026-11-16\",\"2026-11-11\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-12\",\"2026-11-13\",\"2026-09-01\",\"2026-09-01\",\"2026-11-12\",\"2026-11-12\",\"2026-11-12\",\"2026-11-06\",\"2026-11-03\",\"2026-11-13\"]]",
+ "fingerprint": "[42,\"calm\",\"tightening\",\"neutral\",[\"fed_tightening\"],50,23,81,31,\"2026-11-17\",[\"2026-11-16\",\"2026-11-16\",\"2026-11-11\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-16\",\"2026-09-01\",\"2026-09-01\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-13\",\"2026-11-10\",\"2026-11-13\"]]",
  "sent": {
-  "liquidity": "2026-11-11T23:41:59.001Z"
+  "liquidity": "2026-11-11T23:41:59.001Z",
+  "zone:calm": "2026-11-17T00:28:26.152Z",
+  "hawkish": "2026-11-17T00:28:26.152Z",
+  "realyield": "2026-11-17T00:28:26.152Z"
  },
  "log": [
+  {
+   "at": "2026-11-17T00:28:26.153Z",
+   "key": "zone:calm",
+   "title": "Meter now Calm (42)",
+   "body": "Safe-haven meter moved from Watchful to Calm. No strong macro edge. Let price structure lead.",
+   "level": "info"
+  },
+  {
+   "at": "2026-11-17T00:28:26.153Z",
+   "key": "hawkish",
+   "title": "2y yield +27bp in 10 sessions",
+   "body": "Markets are pricing a more hawkish Fed. Headwind for gold even if war risk is high.",
+   "level": "info"
+  },
+  {
+   "at": "2026-11-17T00:28:26.153Z",
+   "key": "realyield",
+   "title": "Real yield +28bp in 10 sessions",
+   "body": "10y TIPS yield 2.91%. Rising real yields raise the cost of holding gold.",
+   "level": "info"
+  },
   {
    "at": "2026-11-11T23:41:59.002Z",
    "key": "liquidity",
@@ -36,5 +60,5 @@
    "level": "high"
   }
  ],
- "updatedAt": "2026-11-16T16:22:14.965Z"
+ "updatedAt": "2026-11-17T00:28:26.159Z"
 }
