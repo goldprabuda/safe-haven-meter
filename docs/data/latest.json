@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-17T08:27:26.785Z",
- "meter": 42.1,
+ "generatedAt": "2026-11-17T17:51:52.048Z",
+ "meter": 42.5,
  "coverage": 1,
  "zone": {
   "key": "calm",
@@ -13,10 +13,10 @@
    "weight": 0.4,
    "effect": 1,
    "baseEffect": 1,
-   "score": 49.6,
+   "score": 50.5,
    "coverage": 1,
-   "beforeGate": 49.3,
-   "mult": 0.5
+   "beforeGate": 52.1,
+   "mult": 0.25
   },
   "inflation": {
    "label": "Inflation impulse",
@@ -70,8 +70,8 @@
  },
  "gate": {
   "label": "Credit stress (junk-bond spread rank)",
-  "score": 86.2,
-  "stressed": false,
+  "score": 91.5,
+  "stressed": true,
   "threshold": 90
  },
  "factors": [
@@ -489,15 +489,14 @@
    "gauge": "fear",
    "chain": "oil",
    "unit": "",
-   "asOf": "2026-11-13",
-   "z": 0.21,
-   "score": 67,
+   "asOf": "2026-11-16",
+   "z": 0.17,
+   "score": 65.8,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 50.28,
+   "value": 49.59,
    "spark": [
-    59.97,
     58.3,
     57.84,
     61.24,
@@ -616,7 +615,8 @@
     53.1,
     51.26,
     51.72,
-    50.28
+    50.28,
+    49.59
    ]
   },
   {
@@ -625,15 +625,14 @@
    "gauge": "fear",
    "chain": null,
    "unit": "",
-   "asOf": "2026-11-13",
-   "z": 0.18,
-   "score": 73.7,
+   "asOf": "2026-11-16",
+   "z": 0.98,
+   "score": 87.6,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 19.3,
+   "value": 22.91,
    "spark": [
-    16.05,
     15.77,
     16.06,
     15.4,
@@ -752,7 +751,8 @@
     19.46,
     17.49,
     18.7,
-    19.3
+    19.3,
+    22.91
    ]
   },
   {
@@ -761,15 +761,14 @@
    "gauge": "fear",
    "chain": null,
    "unit": "",
-   "asOf": "2026-11-13",
-   "z": 0.39,
-   "score": 69.5,
+   "asOf": "2026-11-16",
+   "z": 0.56,
+   "score": 75.7,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 25.35,
+   "value": 26.42,
    "spark": [
-    24.47,
     24.83,
     24.91,
     25.64,
@@ -888,7 +887,8 @@
     24.43,
     24.21,
     25.91,
-    25.35
+    25.35,
+    26.42
    ]
   },
   {
@@ -897,9 +897,9 @@
    "gauge": "gate",
    "chain": null,
    "unit": "%",
-   "asOf": "2026-11-13",
-   "z": 0.82,
-   "score": 86.2,
+   "asOf": "2026-11-16",
+   "z": 1.16,
+   "score": 91.5,
    "stale": false,
    "error": null,
    "weight": 1,
@@ -2025,45 +2025,46 @@
   }
  ],
  "read": {
-  "bias": "neutral",
-  "text": "No strong macro edge. Let price structure lead.",
+  "bias": "caution",
+  "text": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
   "flags": [
-   "fed_tightening"
+   "fed_tightening",
+   "liquidity_stress"
   ]
  },
  "silver": {
-  "ratio": 81.56784236727285,
-  "chg20": 9.779813295031047,
+  "ratio": 81.46120827476487,
+  "chg20": 9.673179202523073,
   "text": "Ratio rising in calm conditions: silver lagging; gold the steadier choice."
  },
  "market": {
   "gold": {
-   "price": 3868.949951,
-   "at": "2026-11-17T08:26:28Z",
+   "price": 3868.370117,
+   "at": "2026-11-17T17:50:59Z",
    "trend": {
-    "price": 3865.5,
+    "price": 3869,
     "asOf": "2026-11-17",
-    "sma50": 4157.5699853515625,
-    "sma200": 4463.8494946289065,
-    "ret20": -6.689038070873032,
+    "sma50": 4157.639985351562,
+    "sma200": 4463.8669946289065,
+    "ret20": -6.604550070161109,
     "state": "down",
     "points": 517
    }
   },
   "silver": {
-   "price": 47.373001,
-   "at": "2026-11-17T08:26:27Z",
+   "price": 47.445,
+   "at": "2026-11-17T17:50:58Z",
    "trend": {
-    "price": 47.38999938964844,
+    "price": 47.494998931884766,
     "asOf": "2026-11-17",
-    "sma50": 57.71272010803223,
-    "sma200": 68.07726984024048,
-    "ret20": -17.87682678223358,
+    "sma50": 57.714820098876956,
+    "sma200": 68.07779483795166,
+    "ret20": -17.694870763961433,
     "state": "down",
     "points": 517
    }
   },
-  "goldInr10g": 117225,
+  "goldInr10g": 117207,
   "brent": {
    "value": 92.14,
    "asOf": "2026-11-11",
@@ -2076,7 +2077,7 @@
   },
   "fedUpper": {
    "value": 4,
-   "asOf": "2026-11-16",
+   "asOf": "2026-11-17",
    "label": "Fed funds ceiling"
   },
   "y2": {
@@ -2229,10 +2230,17 @@
   3885.300048828125,
   3886.300048828125,
   3853,
-  3865.5
+  3869
  ],
  "events": [],
  "alerts": [
+  {
+   "at": "2026-11-17T17:51:52.040Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-17T00:28:26.153Z",
    "key": "zone:calm",
@@ -2284,6 +2292,7 @@
   }
  ],
  "pending": [
+  "liquidity",
   "hawkish",
   "realyield"
  ]
