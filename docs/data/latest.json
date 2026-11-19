@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-11-19T13:50:51.651Z",
- "meter": 44.6,
+ "generatedAt": "2026-11-19T22:06:59.378Z",
+ "meter": 44.7,
  "coverage": 1,
  "zone": {
   "key": "calm",
@@ -13,9 +13,9 @@
    "weight": 0.4,
    "effect": 1,
    "baseEffect": 1,
-   "score": 51.1,
+   "score": 51.3,
    "coverage": 1,
-   "beforeGate": 54.2,
+   "beforeGate": 55.1,
    "mult": 0.25
   },
   "inflation": {
@@ -24,7 +24,7 @@
    "weight": 0.15,
    "effect": -1,
    "baseEffect": 1,
-   "score": 22.2,
+   "score": 21.4,
    "coverage": 1
   },
   "headwind": {
@@ -33,7 +33,7 @@
    "weight": 0.3,
    "effect": -1,
    "baseEffect": -1,
-   "score": 73.9,
+   "score": 74.4,
    "coverage": 1
   },
   "flows": {
@@ -51,7 +51,7 @@
   "label": "Fed tightening",
   "text": "Hikes are priced. War fear counts half, and hot inflation now counts against gold because it means more hikes.",
   "fedPath": 0.8,
-  "y2Trend60": 0.61,
+  "y2Trend60": 0.56,
   "rules": {
    "tighten": {
     "enterPath": 0.25,
@@ -70,7 +70,7 @@
  },
  "gate": {
   "label": "Credit stress (junk-bond spread rank)",
-  "score": 93.5,
+  "score": 94,
   "stressed": true,
   "threshold": 90
  },
@@ -489,15 +489,14 @@
    "gauge": "fear",
    "chain": "oil",
    "unit": "",
-   "asOf": "2026-11-17",
-   "z": 0.19,
-   "score": 66.6,
+   "asOf": "2026-11-18",
+   "z": 0.17,
+   "score": 66.2,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 49.9,
+   "value": 49.67,
    "spark": [
-    57.84,
     61.24,
     59.53,
     60.52,
@@ -616,7 +615,8 @@
     51.72,
     50.28,
     49.59,
-    49.9
+    49.9,
+    49.67
    ]
   },
   {
@@ -625,15 +625,14 @@
    "gauge": "fear",
    "chain": null,
    "unit": "",
-   "asOf": "2026-11-17",
-   "z": 1.55,
-   "score": 93.6,
+   "asOf": "2026-11-18",
+   "z": 1.34,
+   "score": 90.8,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 25.46,
+   "value": 24.56,
    "spark": [
-    16.06,
     15.4,
     21.51,
     18.92,
@@ -752,7 +751,8 @@
     18.7,
     19.3,
     22.91,
-    25.46
+    25.46,
+    24.56
    ]
   },
   {
@@ -761,15 +761,14 @@
    "gauge": "fear",
    "chain": null,
    "unit": "",
-   "asOf": "2026-11-17",
-   "z": 0.56,
-   "score": 75.9,
+   "asOf": "2026-11-18",
+   "z": 0.82,
+   "score": 84.7,
    "stale": false,
    "error": null,
    "weight": 0.15,
-   "value": 26.46,
+   "value": 28.04,
    "spark": [
-    24.91,
     25.64,
     24.44,
     24.49,
@@ -888,7 +887,8 @@
     25.91,
     25.35,
     26.42,
-    26.46
+    26.46,
+    28.04
    ]
   },
   {
@@ -897,9 +897,9 @@
    "gauge": "gate",
    "chain": null,
    "unit": "%",
-   "asOf": "2026-11-17",
-   "z": 1.44,
-   "score": 93.5,
+   "asOf": "2026-11-18",
+   "z": 1.55,
+   "score": 94,
    "stale": false,
    "error": null,
    "weight": 1,
@@ -913,15 +913,14 @@
    "gauge": "gate",
    "chain": null,
    "unit": "pp",
-   "asOf": "2026-11-17",
-   "z": 1.56,
-   "score": 92.8,
+   "asOf": "2026-11-18",
+   "z": 1.4,
+   "score": 91,
    "stale": false,
    "error": null,
    "weight": 1,
-   "value": 0.61,
+   "value": 0.56,
    "spark": [
-    0.49,
     0.45,
     0.41,
     0.49,
@@ -1040,7 +1039,8 @@
     0.67,
     0.69,
     0.64,
-    0.61
+    0.61,
+    0.56
    ]
   },
   {
@@ -1049,15 +1049,14 @@
    "gauge": "inflation",
    "chain": "inflation",
    "unit": "pp",
-   "asOf": "2026-11-18",
-   "z": -2.05,
-   "score": 2.4,
+   "asOf": "2026-11-19",
+   "z": -2.66,
+   "score": 0.5,
    "stale": false,
    "error": null,
    "weight": 0.4,
-   "value": -0.16,
+   "value": -0.21,
    "spark": [
-    -0.07,
     -0.08,
     -0.08,
     -0.11,
@@ -1176,7 +1175,8 @@
     -0.08,
     -0.15,
     -0.14,
-    -0.16
+    -0.16,
+    -0.21
    ]
   },
   {
@@ -1333,15 +1333,14 @@
    "gauge": "headwind",
    "chain": "fed",
    "unit": "pp",
-   "asOf": "2026-11-17",
-   "z": 1.96,
-   "score": 96.2,
+   "asOf": "2026-11-18",
+   "z": 1.95,
+   "score": 96.1,
    "stale": false,
    "error": null,
    "weight": 0.25,
    "value": 0.8,
    "spark": [
-    0.25,
     0.24,
     0.23,
     0.3,
@@ -1460,6 +1459,7 @@
     0.86,
     0.88,
     0.83,
+    0.8,
     0.8
    ]
   },
@@ -1469,15 +1469,14 @@
    "gauge": "headwind",
    "chain": null,
    "unit": "pp",
-   "asOf": "2026-11-17",
-   "z": 0.03,
-   "score": 56.2,
+   "asOf": "2026-11-18",
+   "z": -0.07,
+   "score": 51.7,
    "stale": false,
    "error": null,
    "weight": 0.2,
-   "value": 0.03,
+   "value": 0.01,
    "spark": [
-    0.16,
     0.07,
     0.1,
     0.17,
@@ -1596,7 +1595,8 @@
     0.04,
     0.11,
     0.09,
-    0.03
+    0.03,
+    0.01
    ]
   },
   {
@@ -1605,15 +1605,14 @@
    "gauge": "headwind",
    "chain": "real",
    "unit": "pp",
-   "asOf": "2026-11-17",
-   "z": 0.36,
-   "score": 66.2,
+   "asOf": "2026-11-18",
+   "z": 0.48,
+   "score": 70.9,
    "stale": false,
    "error": null,
    "weight": 0.3,
-   "value": 0.09,
+   "value": 0.11,
    "spark": [
-    0.17,
     0.1,
     0.13,
     0.16,
@@ -1732,7 +1731,8 @@
     0.02,
     0.13,
     0.18,
-    0.09
+    0.09,
+    0.11
    ]
   },
   {
@@ -2033,38 +2033,38 @@
   ]
  },
  "silver": {
-  "ratio": 82.5116611308515,
-  "chg20": 8.368064847360216,
+  "ratio": 84.65468962106867,
+  "chg20": 10.511093337577393,
   "text": "Ratio rising in calm conditions: silver lagging; gold the steadier choice."
  },
  "market": {
   "gold": {
-   "price": 3714.25,
-   "at": "2026-11-19T13:50:04Z",
+   "price": 3627.899902,
+   "at": "2026-11-19T22:06:04Z",
    "trend": {
-    "price": 3715.5,
+    "price": 3628.300048828125,
     "asOf": "2026-11-19",
-    "sma50": 4129.331982421875,
-    "sma200": 4451.7009948730465,
-    "ret20": -8.494234820187696,
+    "sma50": 4127.587983398437,
+    "sma200": 4451.264995117188,
+    "ret20": -10.641805337109966,
     "state": "down",
     "points": 519
    }
   },
   "silver": {
-   "price": 45.060001,
-   "at": "2026-11-19T13:50:03Z",
+   "price": 42.842999,
+   "at": "2026-11-19T22:06:33Z",
    "trend": {
-    "price": 45.029998779296875,
+    "price": 42.86000061035156,
     "asOf": "2026-11-19",
-    "sma50": 56.86674011230469,
-    "sma200": 67.6908698272705,
-    "ret20": -17.774452506238838,
+    "sma50": 56.82334014892578,
+    "sma200": 67.68001983642579,
+    "ret20": -21.736906255716228,
     "state": "down",
     "points": 519
    }
   },
-  "goldInr10g": 112537,
+  "goldInr10g": 109921,
   "brent": {
    "value": 92.94,
    "asOf": "2026-11-17",
@@ -2082,22 +2082,22 @@
   },
   "y2": {
    "value": 4.8,
-   "asOf": "2026-11-17",
+   "asOf": "2026-11-18",
    "label": "2y yield"
   },
   "y10": {
-   "value": 5.1,
-   "asOf": "2026-11-17",
+   "value": 5.07,
+   "asOf": "2026-11-18",
    "label": "10y yield"
   },
   "real10": {
-   "value": 2.89,
-   "asOf": "2026-11-17",
+   "value": 2.88,
+   "asOf": "2026-11-18",
    "label": "10y real yield"
   },
   "be10": {
-   "value": 2.19,
-   "asOf": "2026-11-18",
+   "value": 2.16,
+   "asOf": "2026-11-19",
    "label": "10y breakeven"
   },
   "usdinr": {
@@ -2230,7 +2230,7 @@
   3853,
   3864.199951171875,
   3741.89990234375,
-  3715.5
+  3628.300048828125
  ],
  "events": [],
  "alerts": [
