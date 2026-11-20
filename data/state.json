@@ -2,14 +2,21 @@
  "zone": "calm",
  "zoneLabel": "Calm",
  "fedRegime": "tightening",
- "fingerprint": "[45.5,\"calm\",\"tightening\",\"caution\",[\"fed_tightening\",\"liquidity_stress\"],51,21,74,36,\"2026-11-20\",[\"2026-11-16\",\"2026-11-16\",\"2026-11-17\",\"2026-11-18\",\"2026-11-18\",\"2026-11-18\",\"2026-11-18\",\"2026-11-18\",\"2026-11-19\",\"2026-09-01\",\"2026-09-01\",\"2026-11-18\",\"2026-11-18\",\"2026-11-18\",\"2026-11-13\",\"2026-11-10\",\"2026-11-19\"]]",
+ "fingerprint": "[44,\"calm\",\"tightening\",\"caution\",[\"fed_tightening\",\"liquidity_stress\"],52,21,74,27,\"2026-11-20\",[\"2026-11-16\",\"2026-11-16\",\"2026-11-17\",\"2026-11-19\",\"2026-11-19\",\"2026-11-19\",\"2026-11-19\",\"2026-11-18\",\"2026-11-19\",\"2026-09-01\",\"2026-09-01\",\"2026-11-18\",\"2026-11-18\",\"2026-11-18\",\"2026-11-13\",\"2026-11-17\",\"2026-11-19\"]]",
  "sent": {
-  "liquidity": "2026-11-17T17:51:52.039Z",
+  "liquidity": "2026-11-20T20:42:11.658Z",
   "zone:calm": "2026-11-17T00:28:26.152Z",
   "hawkish": "2026-11-17T00:28:26.152Z",
   "realyield": "2026-11-20T03:08:27.768Z"
  },
  "log": [
+  {
+   "at": "2026-11-20T20:42:11.659Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-20T03:08:27.768Z",
    "key": "realyield",
@@ -74,5 +81,5 @@
    "level": "high"
   }
  ],
- "updatedAt": "2026-11-20T12:08:20.640Z"
+ "updatedAt": "2026-11-20T20:42:11.669Z"
 }
