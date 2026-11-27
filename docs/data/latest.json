@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-27T03:14:39.475Z",
+ "generatedAt": "2026-11-27T13:03:51.703Z",
  "meter": 45,
  "coverage": 1,
  "zone": {
@@ -2034,38 +2034,38 @@
   ]
  },
  "silver": {
-  "ratio": 83.52242724992246,
-  "chg20": 4.110245392581277,
+  "ratio": 83.56189663749835,
+  "chg20": 4.1497147801571685,
   "text": "Ratio rising in calm conditions: silver lagging; gold the steadier choice."
  },
  "market": {
   "gold": {
-   "price": 3627,
-   "at": "2026-11-27T03:13:49Z",
+   "price": 3663.899902,
+   "at": "2026-11-27T13:03:20Z",
    "trend": {
-    "price": 3658.699951171875,
+    "price": 3692.60009765625,
     "asOf": "2026-11-27",
-    "sma50": 4032.94998046875,
-    "sma200": 4409.000994873047,
-    "ret20": -6.160710897642774,
+    "sma50": 4033.6279833984377,
+    "sma200": 4409.170495605469,
+    "ret20": -5.291231112742512,
     "state": "down",
     "points": 525
    }
   },
   "silver": {
-   "price": 43.435001,
-   "at": "2026-11-27T03:13:48Z",
+   "price": 43.764999,
+   "at": "2026-11-27T13:03:19Z",
    "trend": {
-    "price": 43.80500030517578,
+    "price": 44.189998626708984,
     "asOf": "2026-11-27",
-    "sma50": 54.11113998413086,
-    "sma200": 66.56581981658935,
-    "ret20": -10.778662247666837,
+    "sma50": 54.11883995056152,
+    "sma200": 66.56774480819702,
+    "ret20": -9.99450370320184,
     "state": "down",
     "points": 525
    }
   },
-  "goldInr10g": 108063,
+  "goldInr10g": 109163,
   "brent": {
    "value": 91.8,
    "asOf": "2026-11-24",
@@ -2078,7 +2078,7 @@
   },
   "fedUpper": {
    "value": 4,
-   "asOf": "2026-11-26",
+   "asOf": "2026-11-27",
    "label": "Fed funds ceiling"
   },
   "y2": {
@@ -2231,10 +2231,17 @@
   3561.89990234375,
   3535.800048828125,
   3593.39990234375,
-  3658.699951171875
+  3692.60009765625
  ],
  "events": [],
  "alerts": [
+  {
+   "at": "2026-11-27T13:03:51.696Z",
+   "key": "liquidity",
+   "title": "Credit stress: dash-for-cash risk",
+   "body": "Credit stress: in a dash for cash gold can fall alongside stocks before its safe-haven bid returns. Wait for credit spreads to stop widening.",
+   "level": "high"
+  },
   {
    "at": "2026-11-25T18:49:52.888Z",
    "key": "tug",
