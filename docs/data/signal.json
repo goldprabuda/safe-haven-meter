@@ -1,7 +1,7 @@
 {
  "v": 1,
- "generatedAt": "2026-11-27T21:56:04.038Z",
- "generatedUnix": 1795816564,
+ "generatedAt": "2026-11-28T03:51:33.609Z",
+ "generatedUnix": 1795837893,
  "meter": 46.6,
  "zone": "calm",
  "bias": "caution",
@@ -9,7 +9,7 @@
  "flags": "fed_tightening,liquidity_stress,tug_of_war",
  "fear": 55.3,
  "headwind": 70.9,
- "inflation": 15.3,
+ "inflation": 15.4,
  "flows": 20.1,
  "goldTrend": "down",
  "silverRatio": 83.94,

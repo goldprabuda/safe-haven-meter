@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-27T21:56:04.038Z",
+ "generatedAt": "2026-11-28T03:51:33.609Z",
  "meter": 46.6,
  "coverage": 1,
  "zone": {
@@ -24,7 +24,7 @@
    "weight": 0.15,
    "effect": -1,
    "baseEffect": 1,
-   "score": 15.3,
+   "score": 15.4,
    "coverage": 1
   },
   "headwind": {
@@ -1049,15 +1049,14 @@
    "gauge": "inflation",
    "chain": "inflation",
    "unit": "pp",
-   "asOf": "2026-11-25",
-   "z": -2.82,
-   "score": 0.3,
+   "asOf": "2026-11-27",
+   "z": -2.79,
+   "score": 0.4,
    "stale": false,
    "error": null,
    "weight": 0.4,
    "value": -0.23,
    "spark": [
-    -0.06,
     -0.09,
     -0.1,
     -0.14,
@@ -1176,6 +1175,7 @@
     -0.17,
     -0.21,
     -0.22,
+    -0.23,
     -0.23
    ]
   },
@@ -2041,7 +2041,7 @@
  "market": {
   "gold": {
    "price": 3650,
-   "at": "2026-11-27T21:55:20Z",
+   "at": "2026-11-28T03:50:51Z",
    "trend": {
     "price": 3668.5,
     "asOf": "2026-11-27",
@@ -2054,7 +2054,7 @@
   },
   "silver": {
    "price": 43.23,
-   "at": "2026-11-27T21:55:20Z",
+   "at": "2026-11-28T03:50:50Z",
    "trend": {
     "price": 43.70199966430664,
     "asOf": "2026-11-27",
@@ -2097,8 +2097,8 @@
    "label": "10y real yield"
   },
   "be10": {
-   "value": 2.12,
-   "asOf": "2026-11-25",
+   "value": 2.15,
+   "asOf": "2026-11-27",
    "label": "10y breakeven"
   },
   "usdinr": {
